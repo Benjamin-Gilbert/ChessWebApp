@@ -1,13 +1,22 @@
 import ChessBoard from "../components/ChessBoard";
+import { Link } from "react-router-dom";
 
 export default function ChessGame() {
   return (
     <div style={styles.page}>
-      
-      {/* TOP BAR */}
-      
-
       {/* MAIN AREA */}
+      <div style = {styles.navBar}>
+      <Link to="/" style={styles.titleText}>ChessPoker</Link>
+      <Link to="/play"style={styles.links}>Play</Link>
+      <Link to="/leaderboards" style={styles.links}>Leaderboards</Link>
+      <Link to="/openings" style={styles.links}>Openings</Link>
+      <Link to="/about" style={styles.links}>About</Link>
+      <div style={styles.profileContainer}>
+        <Link to="/profile" style={styles.links}>*Profile</Link>
+      </div>
+      <h3></h3>
+
+      </div>
       <div style={styles.main}>
         
         {/*Chat and game functions.*/}
@@ -91,6 +100,16 @@ const styles = {
     borderBottom: "3px solid #444",
     marginTop: "4px",
   },
+  navBar: {
+    height: "60px",
+    width: "100%",
+    display: "flex",
+    flexDirection: "row",
+    backgroundColor: "#1f1f1f",
+    padding: "0px 0px 10px 0px",
+    gap: "75px",
+    //justifyContent: "space-between",
+  },
 
   main: {
     flex: 1,
@@ -131,5 +150,27 @@ const styles = {
     padding: "10px",
     fontSize: "14px",
     borderCollapse: "collapse",
+  },
+
+  titleText: {
+    fontSize: 35,
+    color: "inherit",
+    textDecoration: "none",
+    fontWeight: "bold",
+    padding: "20px 0px 0px 100px",
+  },
+  links: {
+    fontSize: 20,
+    color: "inherit",
+    textDecoration: "none",
+    fontWeight: "bold",
+    padding: "30px 0px 0px 0px",
+    //gap
+  },
+  profileContainer: {
+    display: "flex",
+    justifyContent: "right",
+    height: "100%",
+    width: "100%",
   }
 };

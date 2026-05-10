@@ -50,7 +50,7 @@ function ChessBoard() {
             style={{
               width: 100,
               height: 100,
-              backgroundColor: isLight ? "#f0d9b5" : "#b58863",
+              backgroundColor: isLight ? "#f0d9b5" : "#b96622",
               display: "flex",
               alignItems: "center",
               justifyContent: "center"
