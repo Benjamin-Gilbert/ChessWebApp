@@ -4,10 +4,12 @@ public class Piece {
     private String name;
     private String color;
     private boolean hasMoved;
+    private String frontendKey;
     public Piece(String name, String color) {
         this.name = name;
         this.color = color;
         this.hasMoved = false;
+        this.frontendKey = this.setFrontendKey();
     }
     public String getName(){
         return name;
@@ -53,5 +55,16 @@ public class Piece {
                 return "q";
         }
         return "?";
+    }
+    public String getFrontendKey(){
+        return frontendKey;
+    }
+    private String setFrontendKey(){
+        if(this.name.equals("knight")){
+            return this.color.substring(0,1) + "n";
+        }
+        else{
+            return this.color.substring(0,1) + this.name.substring(0,1);
+        }
     }
 }

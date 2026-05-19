@@ -1,7 +1,41 @@
 import ChessBoard from "../components/ChessBoard";
 import { Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import { useState, useEffect } from "react";
 
 export default function ChessGame() {
+  const { gameID } = useParams();
+  const [gameData, setGameData] = useState(null);
+
+  //console.log("RENDER:", { gameID, gameData });
+
+  useEffect(() => {
+
+    if (!gameID) {
+      //console.log("NO GAME ID YET");
+      return;
+    }
+
+    //console.log("USEEFFECT RUNNING:", gameID);
+
+    fetch(`http://localhost:8080/game/${gameID}`)
+      .then(res => {
+        //console.log("STATUS:", res.status);
+        return res.json();
+      })
+      .then(data => {
+        //console.log("RAW DATA:", data);
+        setGameData(data);
+      })
+      .catch(err => {
+        console.error("FETCH ERROR:", err);
+      });
+
+  }, [gameID]);
+
+  if (!gameData) {
+    return <div>Loading...</div>;
+  }
   return (
     <div style={styles.page}>
       {/* MAIN AREA */}
@@ -34,11 +68,11 @@ export default function ChessGame() {
         {/* CENTER: BOARD */}
         <div style={styles.boardArea}>
           <div style={styles.topBar}>
-            <div>    Player B (1500)    </div>
+            <div>    {gameData.playerB} ({gameData.playerBRating})    </div>
           </div>
-          <ChessBoard />
+          <ChessBoard gameID={gameID} />
           <div style = {styles.bottomBar}>
-            <div>    Player A (2052)    </div>
+            <div>    {gameData.playerA} ({gameData.playerARating})    </div>
           </div>
         </div>
 

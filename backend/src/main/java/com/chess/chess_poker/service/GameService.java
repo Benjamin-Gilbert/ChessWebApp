@@ -3,6 +3,8 @@ import com.chess.chess_poker.ChessPokerApplication;
 import org.springframework.stereotype.Service;
 import com.chess.chess_poker.boardinfo.*;
 import com.chess.chess_poker.engine.*;
+import com.chess.chess_poker.dtos.CreateGameRequest;
+import com.chess.chess_poker.dtos.GameResponse;
 import com.chess.chess_poker.dtos.MoveRequest;
 import java.util.Map;
 import java.util.HashMap;
@@ -21,10 +23,11 @@ public class GameService {
     public Map<String, Game> getAllGames(){
         return games;
     }
-    public String createGame(){
-        Game game = new Game();
+    public GameResponse createGame(CreateGameRequest createGameRequest){
+        Game game = new Game(createGameRequest.getPlayerA(), createGameRequest.getPlayerB(), createGameRequest.getPlayerARating(), createGameRequest.getPlayerBRating());
         games.put(game.getGameID(), game);
-        return game.getGameID();
+        GameResponse gameResponse = new GameResponse(game.getGameID(), game.getPlayerA(), game.getPlayerB(), game.getPlayerARating(), game.getPlayerBRating());
+        return gameResponse;
     }
     public String makeMove(MoveRequest request){
         Game game = games.get(request.getGameID());

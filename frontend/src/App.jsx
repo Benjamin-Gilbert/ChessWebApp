@@ -22,6 +22,7 @@ function App() {
         <Route path="/openings" element={<Openings />} />
         <Route path="/about" element={<About />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/play/:gameID" element={<ChessGame />} />
     </Routes>
     // <div style={{
     //   display: "flex",

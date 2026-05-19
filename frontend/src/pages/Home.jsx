@@ -1,6 +1,23 @@
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function Home() {
+    const navigate = useNavigate();
+    async function createGame() {
+      const response = await fetch("http://localhost:8080/game/create", {method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+          playerA: "GM Ben",
+          playerB: "dumb clanker",
+          playerARating: "2800",
+          playerBRating: "3600"
+        }),
+      });
+
+      const data = await response.json();
+      console.log(data);
+      navigate(`/play/${data.gameID}`);
+}
   return (
     <div style={styles.page}>
         <div style = {styles.navBar}>
@@ -48,11 +65,12 @@ export default function Home() {
               <option style={styles.option} value="random" selected>random</option>
             </select>
           </div>
-          <button style={styles.button}>start game</button>
+          <button style={styles.button} onClick={createGame}>start game</button>
         </div>
     </div>
   );
 }
+
 const styles = {
     page: {
         height: "100vh",
