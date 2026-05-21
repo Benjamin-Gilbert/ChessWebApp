@@ -33,7 +33,7 @@ public class GameController {
     @PostMapping("/move")
     public GameResponse makeMove(@RequestBody MoveRequest request){
         Game game = gameService.findGame(request.getGameID());
-        return new GameResponse(gameService.makeMove(request), game.getBoard().getBoard(), game.getLastMoveNotated());
+        return new GameResponse(gameService.makeMove(request), game.getBoard().getBoard(), game.getLastMoveNotated(), game.getMoveList());
     }
     @GetMapping("/{gameID}")
     public GameResponse getGame(@PathVariable String gameID){

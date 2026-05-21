@@ -1,6 +1,8 @@
 package com.chess.chess_poker.boardinfo;
 import java.util.UUID;
 
+import org.apache.naming.java.javaURLContextFactory;
+
 import com.chess.chess_poker.dtos.GameResponse;
 
 import java.util.List;
@@ -9,6 +11,7 @@ public class Game {
     private final String gameID;
     private BoardState board;
     private List<String> moveHistory;
+    private List<NotatedMove> moveList;
     private GameStatus status;
     private Move lastMove;
     private String playerA;
@@ -27,6 +30,7 @@ public class Game {
         this.status = GameStatus.START;
         this.lastMove = null;
         this.lastMoveNotated = null;
+        this.moveList = new ArrayList<NotatedMove>();
         //this.replayBoard = this.board;
     }
     public Game(String a, String b, int ar, int br){
@@ -36,6 +40,7 @@ public class Game {
         this.status = GameStatus.START;
         this.lastMove = null;
         this.lastMoveNotated = null;
+        this.moveList = new ArrayList<NotatedMove>();
         playerA = a;
         playerB = b;
         playerARating = ar;
@@ -74,6 +79,7 @@ public class Game {
     public void addMoveToHistory(String m){
         moveHistory.add(m);
         this.lastMoveNotated = m;
+        this.constructMoveList(moveHistory);
     }
     public void setLastMove(Move m){
         lastMove = m;
@@ -86,5 +92,22 @@ public class Game {
     }
     public String getLastMoveNotated(){
         return lastMoveNotated;
+    }
+    public List<NotatedMove> getMoveList(){
+        return moveList;
+    }
+    public void constructMoveList(List<String> list){
+        this.moveList.clear();
+        int j = 1;
+        for(int i = 0; i < list.size(); i+= 2){
+            if(list.size() - i < 2){
+                this.moveList.add(new NotatedMove(j, list.get(i)));
+                j++;
+            }
+            else{
+                this.moveList.add(new NotatedMove(j, list.get(i), list.get(i+1)));
+                j++;
+            }
+        }
     }
 }

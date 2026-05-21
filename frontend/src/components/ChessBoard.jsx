@@ -1,3 +1,4 @@
+//TODO: change pawn to piece for promotion.
 import React, { useState } from "react";
 import wp from "../assets/pieces/wp.svg";
 import wr from "../assets/pieces/wr.svg";
@@ -31,7 +32,7 @@ const initialBoard = [
 ];
 
 
-function ChessBoard({ gameID }) {
+function ChessBoard({ gameID, onGameUpdate }) {
   const[selectedSquare, setSelectedSquare] = useState(null);
   const[board, setBoard] = useState(initialBoard);
   function sendMove(from, toRow, toCol){
@@ -69,7 +70,8 @@ function ChessBoard({ gameID }) {
   }
 
   setBoard(newBoard);
-  console.log(board);
+  //console.log(board);
+  onGameUpdate(data);
 }
     })
     .catch(err => {
@@ -112,7 +114,7 @@ function ChessBoard({ gameID }) {
             style={{
               width: 100,
               height: 100,
-              backgroundColor: isLight ? "#f0d9b5" : "#b96622",
+              backgroundColor: isLight ? "#b96622" : "#f0d9b5",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",

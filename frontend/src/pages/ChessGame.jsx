@@ -6,6 +6,8 @@ import { useState, useEffect } from "react";
 export default function ChessGame() {
   const { gameID } = useParams();
   const [gameData, setGameData] = useState(null);
+  const [moveData, setMoveData] = useState([]);
+  const [rows, setRows] = useState([]);
 
   //console.log("RENDER:", { gameID, gameData });
 
@@ -70,7 +72,7 @@ export default function ChessGame() {
           <div style={styles.topBar}>
             <div>    {gameData.playerB} ({gameData.playerBRating})    </div>
           </div>
-          <ChessBoard gameID={gameID} />
+          <ChessBoard gameID={gameID} onGameUpdate={setMoveData} />
           <div style = {styles.bottomBar}>
             <div>    {gameData.playerA} ({gameData.playerARating})    </div>
           </div>
@@ -80,21 +82,21 @@ export default function ChessGame() {
         <div style={styles.movesPanel}>
           <div style={{ marginBottom: 10, textAlign: "center", fontSize: "18px"}}>Moves</div>
           <table style = {styles.table}>
-            <tr style = {{backgroundColor: "#131212"}}>
-              <td>1</td>
-              <td>e4</td>
-              <td>e5</td>
-            </tr>
-            <tr>
-              <td>2</td>
-              <td>Nf3</td>
-              <td>Nc6</td>
-            </tr>
-            <tr style = {{backgroundColor: "#131212"}}>
-              <td>3</td>
-              <td>Bc4</td>
-              <td>Nf6</td>
-            </tr>
+            <tbody>
+              {
+                moveData?.moveList?.map(move => (
+                  <tr key = {move.moveNum} style={{backgroundColor:
+                    move.moveNum % 2 === 0
+                    ? "#131212"
+                    : "#1f1f1f"
+                  }}>
+                    <td>{move.moveNum}</td>
+                    <td>{move.white}</td>
+                    <td>{move.black}</td>
+                  </tr>
+                ))
+              }
+            </tbody>
           </table>
           </div>
         </div>
