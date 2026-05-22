@@ -3,6 +3,7 @@ package com.chess.chess_poker.controller;
 import com.chess.chess_poker.dtos.CreateGameRequest;
 import com.chess.chess_poker.dtos.GameResponse;
 import com.chess.chess_poker.dtos.MoveRequest;
+import com.chess.chess_poker.engine.GenerateMoves;
 import com.chess.chess_poker.boardinfo.Game;
 import com.chess.chess_poker.service.GameService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +54,11 @@ public class GameController {
     @GetMapping("/{gameID}/moveList")
     public List<String> getMoveList(@PathVariable String gameID) {
         return gameService.findGame(gameID).getMoveHistory();
+    }
+    @PostMapping("/generateMoves")
+    public GameResponse generatePieceMoves(@RequestBody MoveRequest request){
+        Game game = gameService.findGame(request.getGameID());
+        return new GameResponse(GenerateMoves.legalMovesForPiece(request.getToRow(), request.getToCol(), game.getBoard()));
     }
 
 }

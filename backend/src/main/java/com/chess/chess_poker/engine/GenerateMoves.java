@@ -495,4 +495,75 @@ public class GenerateMoves {
         }
         return moves; 
     } 
+    public static int[][] legalMovesForPiece(int iRow, int iCol, BoardState board){
+        Piece piece = board.findPieceByCoordinates(iRow, iCol);
+        List<Integer> legalMovesRows = new ArrayList<Integer>();
+        List<Integer> legalMovesCols = new ArrayList<Integer>();
+        if(piece.getName().equals("pawn")){
+            for(int i = 0; i < 8; i++){
+                for(int j = 0; j < 8; j++){
+                    if(MoveValidator.validatePawn(piece, new Move(iRow, iCol, i, j), board)){
+                        legalMovesRows.add(i);
+                        legalMovesCols.add(j);
+                    }
+                }
+            }
+        }
+        else if(piece.getName().equals("bishop")){
+            for(int i = 0; i < 8; i++){
+                for(int j = 0; j < 8; j++){
+                    if(MoveValidator.validateBishop(piece, new Move(iRow, iCol, i, j), board)){
+                        legalMovesRows.add(i);
+                        legalMovesCols.add(j);
+                    }
+                }
+            }
+        }
+        else if(piece.getName().equals("knight")){
+            for(int i = 0; i < 8; i++){
+                for(int j = 0; j < 8; j++){
+                    if(MoveValidator.validateKnight(piece, new Move(iRow, iCol, i, j), board)){
+                        legalMovesRows.add(i);
+                        legalMovesCols.add(j);
+                    }
+                }
+            }
+        }
+        else if(piece.getName().equals("queen")){
+            for(int i = 0; i < 8; i++){
+                for(int j = 0; j < 8; j++){
+                    if(MoveValidator.validateQueen(piece, new Move(iRow, iCol, i, j), board)){
+                        legalMovesRows.add(i);
+                        legalMovesCols.add(j);
+                    }
+                }
+            }
+        }
+        else if(piece.getName().equals("rook")){
+            for(int i = 0; i < 8; i++){
+                for(int j = 0; j < 8; j++){
+                    if(MoveValidator.validateRook(piece, new Move(iRow, iCol, i, j), board)){
+                        legalMovesRows.add(i);
+                        legalMovesCols.add(j);
+                    }
+                }
+            }
+        }
+        else if(piece.getName().equals("king")){
+            for(int i = 0; i < 8; i++){
+                for(int j = 0; j < 8; j++){
+                    if(MoveValidator.validateKing(piece, new Move(iRow, iCol, i, j), board)){
+                        legalMovesRows.add(i);
+                        legalMovesCols.add(j);
+                    }
+                }
+            }
+        }
+        int[][] legalMoves = new int[legalMovesRows.size()][2];
+        for(int i = 0; i < legalMovesRows.size(); i++){
+            legalMoves[i][0] = legalMovesRows.get(i);
+            legalMoves[i][1] = legalMovesCols.get(i);
+        } 
+        return legalMoves;
+    }
 }

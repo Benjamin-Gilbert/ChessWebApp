@@ -13,6 +13,11 @@ public class MoveRequest {
         toRow = tr;
         toCol = tc;
     }
+    public MoveRequest(String g, int tr, int tc){
+        gameID = g;
+        toRow = tr;
+        toCol = tc;
+    }
     public MoveRequest(){
         //required for some reason.
     }

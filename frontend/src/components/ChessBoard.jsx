@@ -1,4 +1,3 @@
-//TODO: change pawn to piece for promotion.
 import React, { useState } from "react";
 import wp from "../assets/pieces/wp.svg";
 import wr from "../assets/pieces/wr.svg";
@@ -35,6 +34,8 @@ const initialBoard = [
 function ChessBoard({ gameID, onGameUpdate }) {
   const[selectedSquare, setSelectedSquare] = useState(null);
   const[board, setBoard] = useState(initialBoard);
+  const[lastMove, setLastMove] = useState(null);
+  const[legalMoves, setLegalMoves] = useState([]);
   function sendMove(from, toRow, toCol){
     const moveRequest = {
       gameID: gameID,
@@ -70,6 +71,16 @@ function ChessBoard({ gameID, onGameUpdate }) {
   }
 
   setBoard(newBoard);
+  setLegalMoves([]);
+  setLastMove({
+    from,
+    to: {
+      row: toRow, 
+      col: toCol
+    }
+  });
+  console.log("Last Move ", lastMove);
+
   //console.log(board);
   onGameUpdate(data);
 }
@@ -83,8 +94,50 @@ function ChessBoard({ gameID, onGameUpdate }) {
       if(!piece){return;}
       setSelectedSquare({row, col, piece});
       console.log("Selected:", row, col, piece);
+      fetch(`http://localhost:8080/game/generateMoves`, {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({
+            gameID: gameID,
+            toRow: row,
+            toCol: col
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+      console.log(data);
+        setLegalMoves(data.legalMoves);
+        console.log("Legal moves: ", legalMoves);
+    });
+
       return;
     }
+    if(
+      piece &&
+      piece[0] === selectedSquare.piece[0]
+  ){
+      setSelectedSquare({
+          row,
+          col,
+          piece
+      });
+      setLegalMoves([]);
+      fetch(`http://localhost:8080/game/generateMoves`, {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({
+            gameID: gameID,
+            toRow: row,
+            toCol: col
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        setLegalMoves(data.legalMoves);
+    });
+
+      return;
+  }
     console.log("Move:");
 
     console.log("From:", selectedSquare);
@@ -104,9 +157,19 @@ function ChessBoard({ gameID, onGameUpdate }) {
     >
       {board.slice().reverse().flat().map((piece, i) => {
         const row = 7 - Math.floor(i / 8);
+        const displayRow = 7 - row;
         const col = i % 8;
         const isLight = (row + col) % 2 === 0;
-
+        const isLastMove = lastMove &&
+          ((lastMove.from.row === row && lastMove.from.col === col) ||
+          (lastMove.to.row === row && lastMove.to.col === col));
+        const isSelected =
+          selectedSquare &&
+          selectedSquare.row === row &&
+          selectedSquare.col === col;
+        const isLegalMove =
+          legalMoves.some(([r, c]) => r === row && c === col);
+          
         return (
           <div
             key={i}
@@ -114,7 +177,7 @@ function ChessBoard({ gameID, onGameUpdate }) {
             style={{
               width: 100,
               height: 100,
-              backgroundColor: isLight ? "#b96622" : "#f0d9b5",
+              backgroundColor: isLegalMove ? "#1b32b3" : isSelected ? "#c9d652" : isLastMove ? "#c9d652" : isLight ? "#b96622" : "#f0d9b5",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",

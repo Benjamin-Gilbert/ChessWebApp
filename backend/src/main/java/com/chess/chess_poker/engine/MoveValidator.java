@@ -22,7 +22,7 @@ public class MoveValidator {
                 return false;
             }
         }
-        if(Math.abs(move.getToRow() - currRow) == 2 && board.getBoard()[(currRow + move.getToRow())/2][currCol] != null){
+        if(Math.abs(move.getToRow() - currRow) == 2 && (board.getBoard()[(currRow + move.getToRow())/2][currCol] != null || board.getBoard()[move.getToRow()][move.getToCol()] != null)){
             return false;
         }
         if(piece.getColor().equals("white")){

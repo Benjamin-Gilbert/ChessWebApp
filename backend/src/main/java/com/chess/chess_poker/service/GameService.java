@@ -79,7 +79,7 @@ public class GameService {
             game.addMoveToHistory("O-O");
             game.setLastMove(move);
             game.getBoard().setLastMove("O-O");
-            return "Castled" + side + move.getToCol();
+            return "Move made successfully and added to move history";
         }
         else if(piece.getName().equals("king") && move.getToCol() - move.getFromCol() == -2){
             side = "queenside";
@@ -87,7 +87,7 @@ public class GameService {
             game.addMoveToHistory("O-O-O");
             game.setLastMove(move);
             game.getBoard().setLastMove("O-O-O");
-            return "Castled" + side + move.getToCol();
+            return "Move made successfully and added to move history";
         }
         else if(MoveValidator.getEnPassant()){
             game.getBoard().enPassant(move, piece);

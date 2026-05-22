@@ -12,6 +12,7 @@ public class GameResponse {
     private Piece[][] mirrorBoard;
     private String lastMove;
     private List<NotatedMove> moveList;
+    private int[][] legalMoves;
     public GameResponse(){
         gameID = "Game not found";
     }
@@ -32,6 +33,9 @@ public class GameResponse {
         mirrorBoard = mb;
         lastMove = lm;
         moveList = ml;
+    }
+    public GameResponse(int[][] m){
+        legalMoves = m;
     }
     public String getGameID(){
         return gameID;
@@ -59,5 +63,8 @@ public class GameResponse {
     }
     public List<NotatedMove> getMoveList(){
         return moveList;
+    }
+    public int[][] getLegalMoves(){
+        return legalMoves;
     }
 }

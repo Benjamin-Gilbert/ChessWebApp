@@ -29,6 +29,9 @@ public class Piece {
     public void setColor(String color){
         this.color = color;
     }
+    public void setFrontendKey(String key){
+        frontendKey = key;
+    }
     public int[] getCurrPosition(BoardState board){
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
