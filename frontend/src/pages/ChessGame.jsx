@@ -59,8 +59,8 @@ export default function ChessGame() {
         <div style={styles.chatPanel}>
           <h3>Chat</h3>
           <div style={styles.chatBox}>
-            <div>Player A (2052) vs Player B (1500)</div>
-            <div>+2 win/-6 draw/-12 loss</div>
+            <div>{gameData.playerA} ({gameData.playerARating}) vs {gameData.playerB} ({gameData.playerBRating})</div>
+            <div>+12 win/+6 draw/-2 loss</div>
           </div>
           <h3>Game</h3>
           <button>Resign</button>

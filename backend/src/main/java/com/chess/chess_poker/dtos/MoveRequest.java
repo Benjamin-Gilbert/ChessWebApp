@@ -6,6 +6,7 @@ public class MoveRequest {
     private int fromCol;
     private int toRow;
     private int toCol;
+    private String promotion;
     public MoveRequest(String g, int fr, int fc, int tr, int tc){
         gameID = g;
         fromRow = fr;
@@ -17,6 +18,14 @@ public class MoveRequest {
         gameID = g;
         toRow = tr;
         toCol = tc;
+    }
+    public MoveRequest(String g, int fr, int fc, int tr, int tc, String p){
+        gameID = g;
+        fromRow = fr;
+        fromCol = fc;
+        toRow = tr;
+        toCol = tc;
+        promotion = p;
     }
     public MoveRequest(){
         //required for some reason.
@@ -41,4 +50,7 @@ public class MoveRequest {
         return toCol;
     }
     public void setToCol(int tc){toCol = tc;}
+    public String getPromotion(){
+        return promotion;
+    }
 }

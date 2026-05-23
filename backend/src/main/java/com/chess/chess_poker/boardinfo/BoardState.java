@@ -43,7 +43,12 @@ public class BoardState {
     // methods to set pieces, move pieces, remove pieces, get turn, gamestate, etc.
     public void promote(Piece piece, String toPiece){
         piece.setName(toPiece);
-        String newKey = piece.getColor().substring(0,1) + "q";
+        String abrev = "";
+        if(piece.getName().equals("knight")){
+            abrev = "n";
+        }
+        else{abrev = piece.getName().substring(0,1);}
+        String newKey = piece.getColor().substring(0,1) + abrev;
         piece.setFrontendKey(newKey);
     }
     public void makeMove(Move move, Piece piece){

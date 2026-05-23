@@ -115,8 +115,22 @@ public class GameService {
                 capture = true;
             }
             if(piece.getName().equals("pawn") && (piece.getCurrPosition(game.getBoard())[0] == 0 || piece.getCurrPosition(game.getBoard())[0] == 7)){
-                game.getBoard().promote(piece, "queen");
-                promotion = "queen";
+                if(request.getPromotion().equals("queen")){
+                    game.getBoard().promote(piece, "queen");
+                    promotion = "queen";
+                }
+                else if(request.getPromotion().equals("bishop")){
+                    game.getBoard().promote(piece, "bishop");
+                    promotion = "bishop";
+                }
+                else if(request.getPromotion().equals("knight")){
+                    game.getBoard().promote(piece, "knight");
+                    promotion = "knight";
+                }
+                else if(request.getPromotion().equals("rook")){
+                    game.getBoard().promote(piece, "rook");
+                    promotion = "rook";
+                }
             }
             piece.setHasMoved(true);
         }

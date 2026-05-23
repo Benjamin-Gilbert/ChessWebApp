@@ -29,6 +29,7 @@ const initialBoard = [
   ["bp","bp","bp","bp","bp","bp","bp","bp"],
   ["br","bn","bb","bq","bk","bb","bn","br"]
 ];
+const files = ["a", "b", "c", "d", "e", "f", "g", "h"];
 
 
 function ChessBoard({ gameID, onGameUpdate }) {
@@ -36,13 +37,39 @@ function ChessBoard({ gameID, onGameUpdate }) {
   const[board, setBoard] = useState(initialBoard);
   const[lastMove, setLastMove] = useState(null);
   const[legalMoves, setLegalMoves] = useState([]);
-  function sendMove(from, toRow, toCol){
+  const[promotionMove, setPromotionMove] = useState(null);
+  function choosePromotion(choice){
+
+    sendMove(
+        promotionMove.from,
+        promotionMove.toRow,
+        promotionMove.toCol,
+        choice
+    );
+
+    setPromotionMove(null);
+
+}
+  function shouldPromote(from, toRow) {
+
+    if(!from.piece) return false;
+
+    if(from.piece[1] !== "p")
+        return false;
+
+    return (
+        (from.piece[0] === "w" && toRow === 7) ||
+        (from.piece[0] === "b" && toRow === 0)
+    );
+}
+  function sendMove(from, toRow, toCol, promotion){
     const moveRequest = {
       gameID: gameID,
       fromRow: from.row,
       fromCol: from.col,
       toRow: toRow,
-      toCol: toCol
+      toCol: toCol,
+      promotion: promotion
     };
     console.log("Request: ", moveRequest);
     fetch("http://localhost:8080/game/move", {
@@ -138,16 +165,25 @@ function ChessBoard({ gameID, onGameUpdate }) {
 
       return;
   }
+   if(shouldPromote(selectedSquare, row)){
+      setPromotionMove({
+        from: selectedSquare,
+        toRow: row,
+        toCol: col
+      });
+      return;
+    }
     console.log("Move:");
 
     console.log("From:", selectedSquare);
     console.log("To:", { row, col });
 
-    sendMove(selectedSquare, row, col);
+    sendMove(selectedSquare, row, col, null);
 
     setSelectedSquare(null);
 }
   return (
+    <div style={{position: "relative"}}>
     <div
       style={{
         display: "grid",
@@ -177,12 +213,65 @@ function ChessBoard({ gameID, onGameUpdate }) {
             style={{
               width: 100,
               height: 100,
+              position: "relative",
               backgroundColor: isLegalMove ? "#1b32b3" : isSelected ? "#c9d652" : isLastMove ? "#c9d652" : isLight ? "#b96622" : "#f0d9b5",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
             }}
           >
+            {col === 0 && (
+
+<div
+style={{
+position:"absolute",
+
+top:4,
+
+left:6,
+
+fontSize:20,
+
+fontWeight:"bold",
+
+color:
+isLight
+? "#f0d9b5"
+: "#b96622"
+}}
+>
+
+{row + 1}
+
+</div>
+
+)}
+{row === 0 && (
+
+<div
+style={{
+position:"absolute",
+
+bottom:4,
+
+right:6,
+
+fontSize:20,
+
+fontWeight:"bold",
+
+color:
+isLight
+? "#f0d9b5"
+: "#b96622"
+}}
+>
+
+{files[col]}
+
+</div>
+
+)}
             {piece && (
               <img
                 src={pieces[piece]}
@@ -194,6 +283,50 @@ function ChessBoard({ gameID, onGameUpdate }) {
         );
       })}
     </div>
+    {promotionMove && (
+
+<div
+style={{
+position: "absolute",
+
+left: `${promotionMove.toCol * 100}px`,
+
+bottom:
+promotionMove.from.piece[0] === "w"
+? `${promotionMove.toRow * 100}px`
+: `${(7 - promotionMove.toRow) * 100}px`,
+
+display: "flex",
+
+flexDirection:
+promotionMove.from.piece[0] === "w"
+? "column-reverse"
+: "column",
+
+backgroundColor: "#262421",
+
+borderRadius: "6px",
+
+zIndex: 1000,
+
+overflow: "hidden",
+height: "200px",
+width: "100px"
+}}
+>
+
+<button onClick={() => choosePromotion("queen")} style={{height: "50px", fontSize: "40px"}}>♛</button>
+
+<button onClick={() => choosePromotion("rook")} style={{height: "50px", fontSize: "40px"}}>♜</button>
+
+<button onClick={() => choosePromotion("bishop")} style={{height: "50px", fontSize: "40px"}}>♝</button>
+
+<button onClick={() => choosePromotion("knight")} style={{height: "50px", fontSize: "40px"}}>♞</button>
+
+</div>
+
+)}
+</div>
     
   );
 }
