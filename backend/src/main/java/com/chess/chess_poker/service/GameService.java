@@ -153,5 +153,12 @@ public class GameService {
         }
         return "Move made successfully and added to move history";
     }
+    public String whiteLoss(Game game){
+        return "white lost";
+        //TODO: adjust ratings etc;
+    }
+    public String blackLoss(Game game){
+        return "black lost";
+    }
 
 }

@@ -8,6 +8,73 @@ export default function ChessGame() {
   const [gameData, setGameData] = useState(null);
   const [moveData, setMoveData] = useState([]);
   const [rows, setRows] = useState([]);
+  const [turn, setTurn] = useState("white");
+  const [gameOverMessage, setGameOverMessage] = useState(null);
+  const [showResignPopup, setShowResignPopup] = useState(false);
+  const [showGameOverPopup, setShowGameOverPopup] = useState(false);
+  const [gameOver, setGameOver] = useState(false);
+
+  function resign(turn){
+    setGameOver(true);
+    if(turn === "white"){
+      setGameOverMessage("White resigns, black wins.");
+fetch(
+"http://localhost:8080/game/resign",
+{
+method:"POST",
+
+headers:{
+"Content-Type":
+"application/json"
+},
+
+body: JSON.stringify({
+gameID
+})
+}
+)
+
+.then(res => res.json())
+
+.then(data => {
+
+setShowResignPopup(false);
+setShowGameOverPopup(true);
+
+
+    })
+  .catch(console.error)
+}
+    else if(turn === "black"){
+      setGameOverMessage("Black resigns, white wins.");
+      fetch(
+"http://localhost:8080/game/resign",
+{
+method:"POST",
+
+headers:{
+"Content-Type":
+"application/json"
+},
+
+body: JSON.stringify({
+gameID
+})
+}
+)
+
+.then(res => res.json())
+
+.then(data => {
+
+setShowResignPopup(false);
+setShowGameOverPopup(true);
+
+
+    })
+  .catch(console.error)
+    }
+  }
 
   //console.log("RENDER:", { gameID, gameData });
 
@@ -63,8 +130,8 @@ export default function ChessGame() {
             <div>+12 win/+6 draw/-2 loss</div>
           </div>
           <h3>Game</h3>
-          <button>Resign</button>
-          <button>Offer Draw</button>
+          <button style={{width: "100px"}} onClick={() => setShowResignPopup(true)}>Resign</button>
+          <button style={{width: "100px"}}>Offer Draw</button>
         </div>
 
         {/* CENTER: BOARD */}
@@ -72,7 +139,7 @@ export default function ChessGame() {
           <div style={styles.topBar}>
             <div>    {gameData.playerB} ({gameData.playerBRating})    </div>
           </div>
-          <ChessBoard gameID={gameID} onGameUpdate={setMoveData} />
+          <ChessBoard gameID={gameID} onGameUpdate={setMoveData} gameOver={gameOver} />
           <div style = {styles.bottomBar}>
             <div>    {gameData.playerA} ({gameData.playerARating})    </div>
           </div>
@@ -100,7 +167,86 @@ export default function ChessGame() {
           </table>
           </div>
         </div>
+              {showResignPopup && (
 
+<div
+style={styles.popupBackground}
+>
+
+<div
+style={styles.popup}
+>
+
+<h3>Resign?</h3>
+
+<p>
+This game will be counted as a loss.
+</p>
+
+<div
+style={{
+display:"flex",
+gap:"10px"
+}}
+>
+
+<button
+onClick={() =>
+setShowResignPopup(false)
+}
+>
+Cancel
+</button>
+
+<button
+onClick={() => resign(moveData.turn)}
+>
+Confirm
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+)}
+{showGameOverPopup && (
+
+<div
+style={styles.popupBackground}
+>
+
+<div
+style={styles.popup}
+>
+
+<h2>Game Over</h2>
+
+<div
+style={{
+fontSize:"20px"
+}}
+>
+
+{gameOverMessage}
+
+</div>
+
+<button
+onClick={() =>
+setShowGameOverPopup(false)
+}
+>
+Close
+
+</button>
+
+</div>
+
+</div>
+
+)}
       </div>
   );
 }
@@ -208,5 +354,45 @@ const styles = {
     justifyContent: "right",
     height: "100%",
     width: "100%",
-  }
+  },
+  popupBackground: {
+position:"fixed",
+
+top:0,
+left:0,
+
+width:"100%",
+height:"100%",
+
+backgroundColor:
+"rgba(0,0,0,.5)",
+
+display:"flex",
+
+justifyContent:
+"center",
+
+alignItems:
+"center",
+
+zIndex:1000
+},
+
+popup: {
+backgroundColor:"#1f1f1f",
+
+padding:"30px",
+
+borderRadius:"12px",
+
+display:"flex",
+
+flexDirection:"column",
+
+gap:"15px",
+
+color:"white",
+
+minWidth:"300px"
+},
 };

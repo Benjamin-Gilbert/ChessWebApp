@@ -34,7 +34,7 @@ public class GameController {
     @PostMapping("/move")
     public GameResponse makeMove(@RequestBody MoveRequest request){
         Game game = gameService.findGame(request.getGameID());
-        return new GameResponse(gameService.makeMove(request), game.getBoard().getBoard(), game.getLastMoveNotated(), game.getMoveList());
+        return new GameResponse(gameService.makeMove(request), game.getBoard().getBoard(), game.getLastMoveNotated(), game.getMoveList(), game.getBoard().getTurn());
     }
     @GetMapping("/{gameID}")
     public GameResponse getGame(@PathVariable String gameID){
@@ -60,5 +60,18 @@ public class GameController {
         Game game = gameService.findGame(request.getGameID());
         return new GameResponse(GenerateMoves.legalMovesForPiece(request.getToRow(), request.getToCol(), game.getBoard()));
     }
+    @PostMapping("/resign")
+    public GameResponse postMethodName(@RequestBody MoveRequest request) {
+        Game game = gameService.findGame(request.getGameID());
+        if(game.getBoard().getTurn().equals("white")){
+            gameService.whiteLoss(game);
+            return new GameResponse("White done lost");
+        }
+        else{
+            gameService.blackLoss(game);
+            return new GameResponse("Black done lost");
+        }
+    }
+    
 
 }

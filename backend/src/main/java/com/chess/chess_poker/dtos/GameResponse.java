@@ -13,6 +13,8 @@ public class GameResponse {
     private String lastMove;
     private List<NotatedMove> moveList;
     private int[][] legalMoves;
+    private String turn;
+    private String message;
     public GameResponse(){
         gameID = "Game not found";
     }
@@ -28,11 +30,15 @@ public class GameResponse {
         mirrorBoard = mb;
         lastMove = lm;
     }
-    public GameResponse(String s, Piece[][] mb, String lm, List<NotatedMove> ml){
+    public GameResponse(String s, Piece[][] mb, String lm, List<NotatedMove> ml, String t){
         moveMadeOrNah = s;
         mirrorBoard = mb;
         lastMove = lm;
         moveList = ml;
+        turn = t;
+    }
+    public GameResponse(String m){
+        message = m;
     }
     public GameResponse(int[][] m){
         legalMoves = m;
@@ -66,5 +72,11 @@ public class GameResponse {
     }
     public int[][] getLegalMoves(){
         return legalMoves;
+    }
+    public String getTurn(){
+        return turn;
+    }
+    public String getMessage(){
+        return message;
     }
 }

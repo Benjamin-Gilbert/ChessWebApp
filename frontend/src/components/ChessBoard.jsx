@@ -32,7 +32,7 @@ const initialBoard = [
 const files = ["a", "b", "c", "d", "e", "f", "g", "h"];
 
 
-function ChessBoard({ gameID, onGameUpdate }) {
+function ChessBoard({ gameID, onGameUpdate, gameOver}) {
   const[selectedSquare, setSelectedSquare] = useState(null);
   const[board, setBoard] = useState(initialBoard);
   const[lastMove, setLastMove] = useState(null);
@@ -108,7 +108,7 @@ function ChessBoard({ gameID, onGameUpdate }) {
   });
   console.log("Last Move ", lastMove);
 
-  //console.log(board);
+  console.log(data.turn);
   onGameUpdate(data);
 }
     })
@@ -117,6 +117,9 @@ function ChessBoard({ gameID, onGameUpdate }) {
     })
   }
   function handleClick(row, col, piece){
+    if(gameOver == true){
+      return;
+    }
     if(selectedSquare == null){
       if(!piece){return;}
       setSelectedSquare({row, col, piece});

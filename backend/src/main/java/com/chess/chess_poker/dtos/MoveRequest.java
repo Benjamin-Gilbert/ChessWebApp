@@ -27,6 +27,9 @@ public class MoveRequest {
         toCol = tc;
         promotion = p;
     }
+    public MoveRequest(String g){
+        gameID = g;
+    }
     public MoveRequest(){
         //required for some reason.
     }
