@@ -217,7 +217,7 @@ function ChessBoard({ gameID, onGameUpdate, gameOver}) {
               width: 100,
               height: 100,
               position: "relative",
-              backgroundColor: isLegalMove ? "#1b32b3" : isSelected ? "#c9d652" : isLastMove ? "#c9d652" : isLight ? "#b96622" : "#f0d9b5",
+              backgroundColor: isSelected ? "#c9d652" : isLastMove ? "#c9d652" : isLight ? "#b96622" : "#f0d9b5",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -274,6 +274,31 @@ isLight
 
 </div>
 
+)}
+
+{isLegalMove && !piece && (
+  <div
+    style={{
+      width: "25px",
+      height: "25px",
+      backgroundColor: "rgba(0,0,0,0.35)",
+      borderRadius: "50%",
+      position: "absolute",
+      zIndex: 1
+    }}
+  />
+)}
+{isLegalMove && piece && (
+  <div
+    style={{
+      width: "85px",
+      height: "85px",
+      border: "8px solid rgba(0,0,0,0.35)",
+      borderRadius: "50%",
+      position: "absolute",
+      zIndex: 1
+    }}
+  />
 )}
             {piece && (
               <img
