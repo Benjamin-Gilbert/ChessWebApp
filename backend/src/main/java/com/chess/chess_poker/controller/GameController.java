@@ -72,6 +72,11 @@ public class GameController {
             return new GameResponse("Black done lost");
         }
     }
+    @PostMapping("/checkMate")
+    public GameResponse checkmate(@RequestBody MoveRequest request){
+        Game game = gameService.findGame(request.getGameID());
+        return new GameResponse("Checkmate!");
+    }
     
 
 }

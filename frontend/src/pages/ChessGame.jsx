@@ -79,7 +79,6 @@ setShowGameOverPopup(true);
   //console.log("RENDER:", { gameID, gameData });
 
   useEffect(() => {
-
     if (!gameID) {
       //console.log("NO GAME ID YET");
       return;
@@ -101,6 +100,15 @@ setShowGameOverPopup(true);
       });
 
   }, [gameID]);
+  useEffect(() => {
+    if(!moveData?.lastMove) return;
+    if(moveData.lastMove.endsWith("#")){
+      const winner = moveData.turn === "white" ? "Black" : "White";
+      setGameOver(true);
+      setGameOverMessage(`${winner} wins by checkmate!`);
+      setShowGameOverPopup(true);
+    }
+  }, [moveData])
 
   if (!gameData) {
     return <div>Loading...</div>;
