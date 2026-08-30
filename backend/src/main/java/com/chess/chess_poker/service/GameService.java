@@ -1,8 +1,12 @@
 package com.chess.chess_poker.service;
 import com.chess.chess_poker.ChessPokerApplication;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.chess.chess_poker.boardinfo.*;
 import com.chess.chess_poker.engine.*;
+import com.chess.chess_poker.repositories.UserRepository;
+import com.chess.chess_poker.userHandling.User;
 import com.chess.chess_poker.dtos.CreateGameRequest;
 import com.chess.chess_poker.dtos.GameResponse;
 import com.chess.chess_poker.dtos.MoveRequest;
@@ -14,7 +18,7 @@ import java.util.List;
 @Service
 public class GameService {
     private Map<String, Game> games;
-
+    @Autowired private UserRepository userRepository;
     public GameService(ChessPokerApplication chessPokerApplication){
         games = new HashMap<>();
     }
@@ -31,14 +35,14 @@ public class GameService {
     public GameResponse createGame(String playerWhite, int playerWhiteRating, String gameMode, int minutes, int seconds, String color){
         Game game = new Game(playerWhite, playerWhiteRating, gameMode, minutes, seconds, color);
         games.put(game.getGameID(), game);
-        GameResponse gameResponse = new GameResponse(game.getGameID(), game.getPlayerWhite(), game.getPlayerBlack(), game.getPlayerWhiteRating(), game.getPlayerBlackRating());
+        GameResponse gameResponse = new GameResponse(game.getGameID(), game.getPlayerWhite(), game.getPlayerBlack(), game.getPlayerWhiteRating(), game.getPlayerBlackRating(), game.getBoard().getBoard());
         return gameResponse;
     }
     public GameResponse joinGame(String gameID, String username, int rating){
         Game game = games.get(gameID);
         if(game == null){return new GameResponse("Game not found.");}
         game.joinGame(username, rating);
-        return new GameResponse(game.getGameID(), game.getPlayerWhite(), game.getPlayerBlack(), game.getPlayerWhiteRating(), game.getPlayerBlackRating());
+        return new GameResponse(game.getGameID(), game.getPlayerWhite(), game.getPlayerBlack(), game.getPlayerWhiteRating(), game.getPlayerBlackRating(), game.getBoard().getBoard());
     }
     public String makeMove(MoveRequest request){
         Game game = games.get(request.getGameID());
@@ -171,11 +175,19 @@ public class GameService {
         }
         return "Move made successfully and added to move history";
     }
+    public void updateRating(User winner, User loser, boolean draw){
+        //add in a function for calculating rating changes.
+    }
     public String whiteLoss(Game game){
+        User userWhite = userRepository.findByUsername(game.getPlayerWhite()).orElseThrow(() -> new RuntimeException("no user found."));
+        User userBlack = userRepository.findByUsername(game.getPlayerBlack()).orElseThrow(() -> new RuntimeException("no user found."));
+        updateRating(userBlack, userWhite, false);
         return "white lost";
-        //TODO: adjust ratings etc;
     }
     public String blackLoss(Game game){
+        User userWhite = userRepository.findByUsername(game.getPlayerWhite()).orElseThrow(() -> new RuntimeException("no user found."));
+        User userBlack = userRepository.findByUsername(game.getPlayerBlack()).orElseThrow(() -> new RuntimeException("no user found."));
+        updateRating(userWhite, userBlack, false);
         return "black lost";
     }
 

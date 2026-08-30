@@ -66,6 +66,34 @@ const {token} = useAuth();
         (from.piece[0] === "b" && toRow === 0)
     );
 }
+useEffect(() => {
+  if (!gameID || !token) return;
+
+  function fetchBoardState() {
+    fetch(`http://localhost:8080/game/${gameID}`, {
+      headers: { "Authorization": `Bearer ${token}` },
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.mirrorBoard) {
+          const newBoard = [];
+          for (let row = 0; row < 8; row++) {
+            const newRow = [];
+            for (let col = 0; col < 8; col++) {
+              newRow.push(data.mirrorBoard[row][col]?.frontendKey ?? null);
+            }
+            newBoard.push(newRow);
+          }
+          setBoard(newBoard);
+          onGameUpdate(data); // keeps ChessGame.jsx's move list / turn / checkmate check in sync too
+        }
+      })
+      .catch(err => console.error("Board poll error:", err));
+  }
+
+  const interval = setInterval(fetchBoardState, 1500); // check every 1.5s
+  return () => clearInterval(interval);
+}, [gameID, token]);
   function sendMove(from, toRow, toCol, promotion){
     const moveRequest = {
       gameID: gameID,

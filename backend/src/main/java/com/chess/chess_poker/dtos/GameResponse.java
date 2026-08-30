@@ -18,12 +18,14 @@ public class GameResponse {
     public GameResponse(){
         gameID = "Game not found";
     }
-    public GameResponse(String g, String w, String b, int wr, int br){
+    public GameResponse(String g, String w, String b, int wr, int br, Piece[][] mb){
         gameID = g;
         playerWhite = w;
         playerBlack = b;
         playerWhiteRating = wr;
         playerBlackRating = br;
+        mirrorBoard = mb;
+        
     }
     public GameResponse(String s, Piece[][] mb, String lm){
         moveMadeOrNah = s;
@@ -36,6 +38,16 @@ public class GameResponse {
         lastMove = lm;
         moveList = ml;
         turn = t;
+    }
+    public GameResponse(String g, String w, String b, int wr, int br, Piece[][] mb, String t, List<NotatedMove> ml){
+        gameID = g;
+        playerWhite = w;
+        playerBlack = b;
+        playerWhiteRating = wr;
+        playerBlackRating = br;
+        mirrorBoard = mb;
+        turn = t;
+        moveList = ml;
     }
     public GameResponse(String m){
         message = m;

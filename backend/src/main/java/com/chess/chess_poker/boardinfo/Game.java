@@ -118,7 +118,7 @@ public class Game {
         status = s;
     }
     public GameResponse returnAsResponse(){
-        return new GameResponse(gameID, playerWhite, playerBlack, playerWhiteRating, playerBlackRating);
+        return new GameResponse(gameID, playerWhite, playerBlack, playerWhiteRating, playerBlackRating, this.getBoard().getBoard(), this.getBoard().getTurn(), this.getMoveList());
     }
     public String getLastMoveNotated(){
         return lastMoveNotated;
