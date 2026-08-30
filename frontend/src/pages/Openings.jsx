@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import ProfileMenu from "../components/ProfileMenu";
 
 export default function Openings() {
   return (
@@ -9,9 +10,7 @@ export default function Openings() {
               <Link to="/leaderboards" style={styles.links}>Leaderboards</Link>
               <Link to="/openings" style={styles.links}>Openings</Link>
               <Link to="/about" style={styles.links}>About</Link>
-              <div style={styles.profileContainer}>
-                <Link to="/profile" style={styles.links}>*Profile</Link>
-              </div>
+              <ProfileMenu />
               <h3></h3>
         
               </div>

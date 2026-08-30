@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import wp from "../assets/pieces/wp.svg";
 import wr from "../assets/pieces/wr.svg";
 import wn from "../assets/pieces/wn.svg";
@@ -12,6 +12,7 @@ import bn from "../assets/pieces/bn.svg";
 import bb from "../assets/pieces/bb.svg";
 import bq from "../assets/pieces/bq.svg";
 import bk from "../assets/pieces/bk.svg";
+import { useAuth } from "../context/AuthContext";
 
 const pieces = {
   wp, wr, wn, wb, wq, wk,
@@ -32,7 +33,10 @@ const initialBoard = [
 const files = ["a", "b", "c", "d", "e", "f", "g", "h"];
 
 
-function ChessBoard({ gameID, onGameUpdate, gameOver}) {
+function ChessBoard({ gameID, onGameUpdate, gameOver, turn, playerColor}) {
+
+const {token} = useAuth();
+
   const[selectedSquare, setSelectedSquare] = useState(null);
   const[board, setBoard] = useState(initialBoard);
   const[lastMove, setLastMove] = useState(null);
@@ -74,7 +78,9 @@ function ChessBoard({ gameID, onGameUpdate, gameOver}) {
     console.log("Request: ", moveRequest);
     fetch("http://localhost:8080/game/move", {
       method: "POST",
-      headers: {"Content-Type": "application/json"},
+      headers: {"Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
       body: JSON.stringify(moveRequest)
     })
     .then(res => res.json())
@@ -120,13 +126,20 @@ function ChessBoard({ gameID, onGameUpdate, gameOver}) {
     if(gameOver == true){
       return;
     }
+    if(!turn || turn !== playerColor){
+      return;
+    }
+
     if(selectedSquare == null){
       if(!piece){return;}
+      if(playerColor[0] !== piece[0]){return;}
       setSelectedSquare({row, col, piece});
       console.log("Selected:", row, col, piece);
       fetch(`http://localhost:8080/game/generateMoves`, {
         method: "POST",
-        headers: {"Content-Type":"application/json"},
+        headers: {"Content-Type":"application/json",
+          "Authorization": `Bearer ${token}`,
+        },
         body: JSON.stringify({
             gameID: gameID,
             toRow: row,
@@ -154,7 +167,9 @@ function ChessBoard({ gameID, onGameUpdate, gameOver}) {
       setLegalMoves([]);
       fetch(`http://localhost:8080/game/generateMoves`, {
         method: "POST",
-        headers: {"Content-Type":"application/json"},
+        headers: {"Content-Type":"application/json",
+          "Authorization": `Bearer ${token}`,
+        },
         body: JSON.stringify({
             gameID: gameID,
             toRow: row,

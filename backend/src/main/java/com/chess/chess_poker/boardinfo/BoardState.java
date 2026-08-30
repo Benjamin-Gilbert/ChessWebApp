@@ -204,6 +204,7 @@ public class BoardState {
     public void setCapturedPiece(Piece p){
         capturedPiece = p;
     }
+    public void setTurn(String t){turn = t;}
 
 
     public int[] findPiece(String color, String name){

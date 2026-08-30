@@ -7,7 +7,9 @@ import com.chess.chess_poker.dtos.CreateGameRequest;
 import com.chess.chess_poker.dtos.GameResponse;
 import com.chess.chess_poker.dtos.MoveRequest;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.HashMap;
+import java.util.List;
 
 @Service
 public class GameService {
@@ -23,11 +25,20 @@ public class GameService {
     public Map<String, Game> getAllGames(){
         return games;
     }
-    public GameResponse createGame(CreateGameRequest createGameRequest){
-        Game game = new Game(createGameRequest.getPlayerA(), createGameRequest.getPlayerB(), createGameRequest.getPlayerARating(), createGameRequest.getPlayerBRating());
+    public List<Game> getOpenGames(){
+        return games.values().stream().filter(g -> g.getPlayerBlack().equals("waiting")).collect(Collectors.toList());
+    }
+    public GameResponse createGame(String playerWhite, int playerWhiteRating, String gameMode, int minutes, int seconds, String color){
+        Game game = new Game(playerWhite, playerWhiteRating, gameMode, minutes, seconds, color);
         games.put(game.getGameID(), game);
-        GameResponse gameResponse = new GameResponse(game.getGameID(), game.getPlayerA(), game.getPlayerB(), game.getPlayerARating(), game.getPlayerBRating());
+        GameResponse gameResponse = new GameResponse(game.getGameID(), game.getPlayerWhite(), game.getPlayerBlack(), game.getPlayerWhiteRating(), game.getPlayerBlackRating());
         return gameResponse;
+    }
+    public GameResponse joinGame(String gameID, String username, int rating){
+        Game game = games.get(gameID);
+        if(game == null){return new GameResponse("Game not found.");}
+        game.joinGame(username, rating);
+        return new GameResponse(game.getGameID(), game.getPlayerWhite(), game.getPlayerBlack(), game.getPlayerWhiteRating(), game.getPlayerBlackRating());
     }
     public String makeMove(MoveRequest request){
         Game game = games.get(request.getGameID());
@@ -147,7 +158,14 @@ public class GameService {
             game.setStatus(GameStatus.CHECKMATE);
             //TODO: CHECKMATE ENDGAME STUFF IDK IF NEEDED
         }
-        //else if() stalemate stuff
+        else if(CheckDetector.detectStaleMate(game.getBoard(), game.getBoard().getBoard()[game.getBoard().findPiece("white", "king")[0]][game.getBoard().findPiece("white", "king")[1]])){
+            game.setStatus(GameStatus.STALEMATE);
+            game.addMoveToHistory("1/2");
+        }
+        else if(CheckDetector.detectStaleMate(game.getBoard(), game.getBoard().getBoard()[game.getBoard().findPiece("black", "king")[0]][game.getBoard().findPiece("black", "king")[1]])){
+            game.setStatus(GameStatus.STALEMATE);
+            game.addMoveToHistory("1/2");
+        }
         else{
             game.setStatus(GameStatus.ONGOING);
         }

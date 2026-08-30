@@ -1,26 +1,27 @@
 package com.chess.chess_poker.dtos;
 
+
 public class CreateGameRequest {
-    private String playerA;
-    private String playerB;
-    private int playerARating;
-    private int playerBRating;
-    public CreateGameRequest(String a, String b, int ar, int br){
-        playerA = a;
-        playerB = b;
-        playerARating = ar;
-        playerBRating = br;
+    private String gameMode;
+    private int minutes;
+    private int seconds;
+    private String color;
+    public CreateGameRequest(String gm, int m, int s, String c){
+        gameMode = gm;
+        minutes = m;
+        seconds = s;
+        color = c;
     }
-    public String getPlayerA(){
-        return playerA;
+    public String getGameMode(){
+        return gameMode;
     }
-    public String getPlayerB(){
-        return playerB;
+    public int getMinutes(){
+        return minutes;
     }
-    public int getPlayerARating(){
-        return playerARating;
+    public int getSeconds(){
+        return seconds;
     }
-    public int getPlayerBRating(){
-        return playerBRating;
+    public String getColor(){
+        return color;
     }
 }

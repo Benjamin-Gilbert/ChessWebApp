@@ -2,8 +2,14 @@ import ChessBoard from "../components/ChessBoard";
 import { Link } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
+import ProfileMenu from "../components/ProfileMenu";
+import { useAuth } from "../context/AuthContext";
 
 export default function ChessGame() {
+
+  const {token} = useAuth();
+  const {username} = useAuth();
+
   const { gameID } = useParams();
   const [gameData, setGameData] = useState(null);
   const [moveData, setMoveData] = useState([]);
@@ -11,9 +17,15 @@ export default function ChessGame() {
   const [turn, setTurn] = useState("white");
   const [gameOverMessage, setGameOverMessage] = useState(null);
   const [showResignPopup, setShowResignPopup] = useState(false);
+  const [showDrawPopup, setShowDrawPopup] = useState(false);
   const [showGameOverPopup, setShowGameOverPopup] = useState(false);
   const [gameOver, setGameOver] = useState(false);
 
+  const playerColor = gameData?.playerWhite === username ? "white" : gameData?.playerBlack === username ? "black" : null;
+
+  function drawOffer(turn){
+    //draw offer post.
+  }
   function resign(turn){
     setGameOver(true);
     if(turn === "white"){
@@ -24,8 +36,8 @@ fetch(
 method:"POST",
 
 headers:{
-"Content-Type":
-"application/json"
+"Content-Type": "application/json",
+"Authorization": `Bearer ${token}`,
 },
 
 body: JSON.stringify({
@@ -53,8 +65,8 @@ setShowGameOverPopup(true);
 method:"POST",
 
 headers:{
-"Content-Type":
-"application/json"
+"Content-Type": "application/json",
+"Authorization": `Bearer ${token}`,
 },
 
 body: JSON.stringify({
@@ -75,9 +87,28 @@ setShowGameOverPopup(true);
   .catch(console.error)
     }
   }
+useEffect(() => {
+  if (!gameID || !token) return;
 
+  function fetchGameData() {
+    fetch(`http://localhost:8080/game/${gameID}`, {
+      headers: { "Authorization": `Bearer ${token}` },
+    })
+      .then(res => res.json())
+      .then(data => setGameData(data))
+      .catch(err => console.error("FETCH ERROR:", err));
+  }
+
+  fetchGameData();
+  const interval = setInterval(fetchGameData, 2000); // check every 2s
+  return () => clearInterval(interval);
+}, [gameID, token]);
   //console.log("RENDER:", { gameID, gameData });
-
+  useEffect(() => {
+    if(moveData?.turn){
+      setTurn(moveData.turn);
+    }
+  }, [moveData]);
   useEffect(() => {
     if (!gameID) {
       //console.log("NO GAME ID YET");
@@ -86,7 +117,11 @@ setShowGameOverPopup(true);
 
     //console.log("USEEFFECT RUNNING:", gameID);
 
-    fetch(`http://localhost:8080/game/${gameID}`)
+    fetch(`http://localhost:8080/game/${gameID}`, {
+      headers: {
+        "Authorization": `Bearer ${token}`,
+      }
+    })
       .then(res => {
         //console.log("STATUS:", res.status);
         return res.json();
@@ -109,6 +144,7 @@ setShowGameOverPopup(true);
       setShowGameOverPopup(true);
     }
   }, [moveData])
+  //Add another useEffect identical to the one above for stalemate and 50 move rule.
 
   if (!gameData) {
     return <div>Loading...</div>;
@@ -122,9 +158,7 @@ setShowGameOverPopup(true);
       <Link to="/leaderboards" style={styles.links}>Leaderboards</Link>
       <Link to="/openings" style={styles.links}>Openings</Link>
       <Link to="/about" style={styles.links}>About</Link>
-      <div style={styles.profileContainer}>
-        <Link to="/profile" style={styles.links}>*Profile</Link>
-      </div>
+      <ProfileMenu />
       <h3></h3>
 
       </div>
@@ -134,22 +168,22 @@ setShowGameOverPopup(true);
         <div style={styles.chatPanel}>
           <h3>Chat</h3>
           <div style={styles.chatBox}>
-            <div>{gameData.playerA} ({gameData.playerARating}) vs {gameData.playerB} ({gameData.playerBRating})</div>
+            <div>{gameData.playerWhite} ({gameData.playerWhiteRating}) vs {gameData.playerBlack} ({gameData.playerBlackRating})</div>
             <div>+12 win/+6 draw/-2 loss</div>
           </div>
           <h3>Game</h3>
           <button style={{width: "100px"}} onClick={() => setShowResignPopup(true)}>Resign</button>
-          <button style={{width: "100px"}}>Offer Draw</button>
+          <button style={{width: "100px"}} onClick={() => setShowDrawPopup(true)}>Offer Draw</button>
         </div>
 
         {/* CENTER: BOARD */}
         <div style={styles.boardArea}>
           <div style={styles.topBar}>
-            <div>    {gameData.playerB} ({gameData.playerBRating})    </div>
+            <div>    {gameData.playerBlack} ({gameData.playerBlackRating})    </div>
           </div>
-          <ChessBoard gameID={gameID} onGameUpdate={setMoveData} gameOver={gameOver} />
+          <ChessBoard gameID={gameID} onGameUpdate={setMoveData} gameOver={gameOver} turn={turn} playerColor={playerColor} />
           <div style = {styles.bottomBar}>
-            <div>    {gameData.playerA} ({gameData.playerARating})    </div>
+            <div>    {gameData.playerWhite} ({gameData.playerWhiteRating})    </div>
           </div>
         </div>
 
@@ -218,6 +252,48 @@ Confirm
 
 </div>
 
+)}
+{showDrawPopup && (
+  <div
+style={styles.popupBackground}
+>
+
+<div
+style={styles.popup}
+>
+
+<h3>Offer Draw?</h3>
+
+<p>
+This game will be counted as a draw.
+</p>
+
+<div
+style={{
+display:"flex",
+gap:"10px"
+}}
+>
+
+<button
+onClick={() =>
+setShowDrawPopup(false)
+}
+>
+Cancel
+</button>
+
+<button
+onClick={() => drawOffer(moveData.turn)}
+>
+Confirm
+</button>
+
+</div>
+
+</div>
+
+</div>
 )}
 {showGameOverPopup && (
 

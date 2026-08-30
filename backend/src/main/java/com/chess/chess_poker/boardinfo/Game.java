@@ -14,17 +14,21 @@ public class Game {
     private List<NotatedMove> moveList;
     private GameStatus status;
     private Move lastMove;
-    private String playerA;
-    private String playerB;
-    private int playerARating;
-    private int playerBRating;
+    private String playerWhite;
+    private String playerBlack;
+    private int playerWhiteRating;
+    private int playerBlackRating;
     private String lastMoveNotated;
+    private String gameMode;
+    private int minutes;
+    private int seconds;
+    private String color;
     //private BoardState replayBoard; may be needed to go back moves.
 
     //Will add clock mechanics, player ids and data, win-loss-draw mechanics, and database functionality later.
 
     public Game(){
-        this.board = new BoardState("white");
+        this.board = new BoardState("None");
         this.gameID = UUID.randomUUID().toString();
         this.moveHistory = new ArrayList<String>();
         this.status = GameStatus.START;
@@ -33,19 +37,37 @@ public class Game {
         this.moveList = new ArrayList<NotatedMove>();
         //this.replayBoard = this.board;
     }
-    public Game(String a, String b, int ar, int br){
-        this.board = new BoardState("white");
+    public Game(String w, String b, int wr, int br){
+        this.board = new BoardState("None");
         this.gameID = UUID.randomUUID().toString();
         this.moveHistory = new ArrayList<String>();
         this.status = GameStatus.START;
         this.lastMove = null;
         this.lastMoveNotated = null;
         this.moveList = new ArrayList<NotatedMove>();
-        playerA = a;
-        playerB = b;
-        playerARating = ar;
-        playerBRating = br;
+        playerWhite = w;
+        playerBlack = b;
+        playerWhiteRating = wr;
+        playerBlackRating = br;
         //this.replayBoard = this.board;
+    }
+    public Game(String w, int wr, String gm, int m, int s, String c){
+        this.board = new BoardState("None");
+        this.gameID = UUID.randomUUID().toString();
+        this.moveHistory = new ArrayList<String>();
+        this.status = GameStatus.START;
+        this.lastMove = null;
+        this.lastMoveNotated = null;
+        this.moveList = new ArrayList<NotatedMove>();
+        playerWhite = w;
+        playerWhiteRating = wr;
+        gameMode = gm;
+        minutes = m;
+        seconds = s;
+        color = c;
+        playerBlack = "waiting";
+        playerBlackRating = 0;
+        
     }
     //Getters and setters:
 
@@ -64,18 +86,26 @@ public class Game {
     public Move getLastMove(){
         return lastMove;
     }
-    public String getPlayerA(){
-        return playerA;
+    public String getPlayerWhite(){
+        return playerWhite;
     }
-    public String getPlayerB(){
-        return playerB;
+    public String getPlayerBlack(){
+        return playerBlack;
     }
-    public int getPlayerARating(){
-        return playerARating;
+    public int getPlayerWhiteRating(){
+        return playerWhiteRating;
     }
-    public int getPlayerBRating(){
-        return playerBRating;
+    public int getPlayerBlackRating(){
+        return playerBlackRating;
     }
+    public String getGameMode(){return gameMode;}
+    public int getMinutes(){return minutes;}
+    public int getSeconds(){return seconds;}
+    public String getColor(){return color;}
+    public void setGameMode(String gm){gameMode = gm;}
+    public void setMinutes(int m){minutes = m;}
+    public void setSeconds(int s){seconds = s;}
+    public void setColor(String c){color = c;}
     public void addMoveToHistory(String m){
         moveHistory.add(m);
         this.lastMoveNotated = m;
@@ -88,7 +118,7 @@ public class Game {
         status = s;
     }
     public GameResponse returnAsResponse(){
-        return new GameResponse(gameID, playerA, playerB, playerARating, playerBRating);
+        return new GameResponse(gameID, playerWhite, playerBlack, playerWhiteRating, playerBlackRating);
     }
     public String getLastMoveNotated(){
         return lastMoveNotated;
@@ -109,5 +139,14 @@ public class Game {
                 j++;
             }
         }
+    }
+    public void startGame(){
+        this.board.setTurn("white");
+        //clock logic.
+    }
+    public void joinGame(String username, int rating){
+        playerBlack = username;
+        playerBlackRating = rating;
+        this.startGame();
     }
 }

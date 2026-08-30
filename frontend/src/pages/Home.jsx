@@ -1,39 +1,38 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import ProfileMenu from "../components/ProfileMenu";
+import { useAuth } from "../context/AuthContext";
 
 const API_BASE = "http://localhost:8080";
 
 export default function Home() {
   const navigate = useNavigate();
-
+  const {token} = useAuth();
+  const {username} = useAuth();
   // --- form state (was previously read from raw DOM values / unused) ---
   const [gameMode, setGameMode] = useState("classic");
   const [minutes, setMinutes] = useState("10");
   const [seconds, setSeconds] = useState("0");
   const [color, setColor] = useState("random");
+  const [openGames, setOpenGames] = useState([]);
+  const [loadingGames, setLoadingGames] = useState(true);
+  const [joiningId, setJoiningId] = useState(null);
 
   const [error, setError] = useState(null);
-
-  // TODO: wire up the open-games list once the backend endpoints are
-  // settled — fetch the list here (e.g. on an interval) and set it below.
-  const openGames = [];
-  const loadingGames = false;
-
-  // TODO: fill in once the join-game endpoint is settled.
-  function joinGame(gameID) {
-    console.log("join game not yet implemented:", gameID);
-  }
 
   async function createGame() {
     try {
       const response = await fetch(`${API_BASE}/game/create`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json", 
+          "Authorization": `Bearer ${token}`,
+        },
         body: JSON.stringify({
-          gameMode,
+          gameMode: gameMode,
           minutes: Number(minutes),
           seconds: Number(seconds),
-          color,
+          color: color,
         }),
       });
 
@@ -45,12 +44,46 @@ export default function Home() {
       setError("Couldn't create the game. Try again.");
     }
   }
+  useEffect(() => {
+    if(!token){return;}
+    let cancelled = false;
+
+    async function fetchOpenGames(){
+      try{
+        const response = await fetch(`${API_BASE}/game/open`,{
+          headers: {"Authorization": `Bearer ${token}`},
+        });
+        if (!response.ok) throw new Error(`Server returned ${response.status}`);
+      const data = await response.json();
+      if (!cancelled) {
+        setOpenGames(data.filter((g) => g.playerWhite !== username));
+        setError(null);
+      }
+    } catch (err) {
+      if (!cancelled) setError("Couldn't load open games.");
+      console.error(err);
+    } finally {
+      if (!cancelled) setLoadingGames(false);
+    }
+  }
+
+  fetchOpenGames();
+  const interval = setInterval(fetchOpenGames, 3000);
+  return () => {
+    cancelled = true;
+    clearInterval(interval);
+  };
+}, [token, username]);
 
   async function joinGame(gameID) {
     setJoiningId(gameID);
     try {
       const response = await fetch(`${API_BASE}/game/join/${gameID}`, {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
       });
       if (!response.ok) throw new Error(`Server returned ${response.status}`);
       navigate(`/play/${gameID}`);
@@ -69,9 +102,7 @@ export default function Home() {
         <Link to="/leaderboards" style={styles.links}>Leaderboards</Link>
         <Link to="/openings" style={styles.links}>Openings</Link>
         <Link to="/about" style={styles.links}>About</Link>
-        <div style={styles.profileContainer}>
-          <Link to="/profile" style={styles.links}>Profile</Link>
-        </div>
+        <ProfileMenu />
       </div>
 
       <div style={styles.content}>
@@ -136,16 +167,17 @@ export default function Home() {
             {openGames.map((game) => (
               <div style={styles.gameCard} key={game.gameID}>
                 <div>
-                  <div style={styles.gameCardHost}>{game.playerA}</div>
+                  <div style={styles.gameCardHost}>{game.playerWhite}({game.playerWhiteRating})</div>
                   <div style={styles.dim}>
-                    {game.gameMode} · {game.minutes}+{game.seconds}
+                    {game.gameMode} · {game.minutes}+{game.seconds} · {game.color}
                   </div>
                 </div>
                 <button
                   style={styles.joinButton}
                   onClick={() => joinGame(game.gameID)}
+                disabled={joiningId === game.gameID}
                 >
-                  Join
+                {joiningId === game.gameID ? "Joining..." : "Join"}
                 </button>
               </div>
             ))}

@@ -7,23 +7,31 @@ import ChessGame from "./pages/ChessGame";
 import Home from "./pages/Home";
 import bp from "./assets/pieces/bp.svg";
 import bk from "./assets/pieces/bk.svg";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, BrowserRouter } from "react-router-dom";
 import Leaderboards from './pages/Leaderboards';
 import Openings from './pages/Openings';
 import About from './pages/About';
 import Profile from './pages/Profile';
+import {AuthProvider} from "./context/AuthContext";
+import Register from './pages/Register';
+import Login from './pages/Login';
 
 function App() {
   return (
-    <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/play" element={<ChessGame />} />
-        <Route path="/leaderboards" element={<Leaderboards />} />
-        <Route path="/openings" element={<Openings />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/play/:gameID" element={<ChessGame />} />
-    </Routes>
+    <AuthProvider>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/play" element={<ChessGame />} />
+          <Route path="/leaderboards" element={<Leaderboards />} />
+          <Route path="/openings" element={<Openings />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/play/:gameID" element={<ChessGame />} />
+          <Route path="/Register" element={<Register />} />
+          <Route path="/Login" element={<Login />} />
+        </Routes>
+    </AuthProvider>
+
     // <div style={{
     //   display: "flex",
     //   justifyContent: "center",

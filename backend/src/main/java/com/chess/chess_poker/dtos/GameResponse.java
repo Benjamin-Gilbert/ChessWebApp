@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 public class GameResponse {
     private String gameID;
-    private String playerA;
-    private String playerB;
-    private int playerARating;
-    private int playerBRating;
+    private String playerWhite;
+    private String playerBlack;
+    private int playerWhiteRating;
+    private int playerBlackRating;
     private String moveMadeOrNah;
     private Piece[][] mirrorBoard;
     private String lastMove;
@@ -18,12 +18,12 @@ public class GameResponse {
     public GameResponse(){
         gameID = "Game not found";
     }
-    public GameResponse(String g, String a, String b, int ar, int br){
+    public GameResponse(String g, String w, String b, int wr, int br){
         gameID = g;
-        playerA = a;
-        playerB = b;
-        playerARating = ar;
-        playerBRating = br;
+        playerWhite = w;
+        playerBlack = b;
+        playerWhiteRating = wr;
+        playerBlackRating = br;
     }
     public GameResponse(String s, Piece[][] mb, String lm){
         moveMadeOrNah = s;
@@ -46,17 +46,17 @@ public class GameResponse {
     public String getGameID(){
         return gameID;
     }
-    public String getPlayerA(){
-        return playerA;
+    public String getPlayerWhite(){
+        return playerWhite;
     }
-    public String getPlayerB(){
-        return playerB;
+    public String getPlayerBlack(){
+        return playerBlack;
     }
-    public int getPlayerARating(){
-        return playerARating;
+    public int getPlayerWhiteRating(){
+        return playerWhiteRating;
     }
-    public int getPlayerBRating(){
-        return playerBRating;
+    public int getPlayerBlackRating(){
+        return playerBlackRating;
     }
     public String getMoveMade(){
         return moveMadeOrNah;
