@@ -176,19 +176,72 @@ public class GameService {
         return "Move made successfully and added to move history";
     }
     public void updateRating(User winner, User loser, boolean draw){
-        //add in a function for calculating rating changes.
+        int KWinner = 10;
+        int KLoser = 10;
+        double EWinner = 1/(1+Math.pow(10, ((double)(loser.getRating() - winner.getRating())/400)));
+        if(winner.getGamesPlayed() < 10){KWinner = 40;}
+        else if(winner.getRating() < 2400){KWinner = 20;}
+        if(loser.getGamesPlayed() < 10){KLoser = 40;}
+        else if(loser.getRating() < 2400){KLoser = 20;}
+        double ELoser = 1.0 - EWinner;
+        if(!draw){
+        winner.setRating(winner.getRating() + (int) Math.round(KWinner * (1 - EWinner)));
+        if(loser.getRating() + (int) Math.round(KLoser * (0-ELoser)) < 100){loser.setRating(100);}
+        else{
+        loser.setRating(loser.getRating() + (int) Math.round(KLoser * (0 - ELoser)));
+        }}
+        else{
+            winner.setRating(winner.getRating() + (int) Math.round(KWinner * (.5 - EWinner)));
+            if(loser.getRating() + (int) Math.round(KLoser * (.5 - ELoser)) < 100){loser.setRating(100);}
+            else{
+                loser.setRating(loser.getRating() + (int) Math.round(KLoser * (.5 - ELoser)));
+            }
+        }
+        winner.addGameToPlayed();
+        loser.addGameToPlayed();
+        
+        userRepository.save(winner);
+        userRepository.save(loser);
     }
-    public String whiteLoss(Game game){
+
+    public int[] whiteLoss(Game game){
+        int[] result = new int[4];
         User userWhite = userRepository.findByUsername(game.getPlayerWhite()).orElseThrow(() -> new RuntimeException("no user found."));
         User userBlack = userRepository.findByUsername(game.getPlayerBlack()).orElseThrow(() -> new RuntimeException("no user found."));
+        int oldWhiteRating = userWhite.getRating();
+        int oldBlackRating = userBlack.getRating();
         updateRating(userBlack, userWhite, false);
-        return "white lost";
+        result[0] = userWhite.getRating();
+        result[1] = userBlack.getRating();
+        result[2] = Math.abs(userWhite.getRating() - oldWhiteRating);
+        result[3] = Math.abs(userBlack.getRating() - oldBlackRating);
+        return result;
     }
-    public String blackLoss(Game game){
+    public int[] blackLoss(Game game){
+        int[] result = new int[4];
         User userWhite = userRepository.findByUsername(game.getPlayerWhite()).orElseThrow(() -> new RuntimeException("no user found."));
         User userBlack = userRepository.findByUsername(game.getPlayerBlack()).orElseThrow(() -> new RuntimeException("no user found."));
+        int oldWhiteRating = userWhite.getRating();
+        int oldBlackRating = userBlack.getRating();
         updateRating(userWhite, userBlack, false);
-        return "black lost";
+        result[0] = userWhite.getRating();
+        result[1] = userBlack.getRating();
+        result[2] = Math.abs(userWhite.getRating() - oldWhiteRating);
+        result[3] = Math.abs(userBlack.getRating() - oldBlackRating);
+        return result;
+    }
+    public int[] drawnGame(Game game){
+        int[] result = new int[4];
+        User userWhite = userRepository.findByUsername(game.getPlayerWhite()).orElseThrow(() -> new RuntimeException("no user found."));
+        User userBlack = userRepository.findByUsername(game.getPlayerBlack()).orElseThrow(() -> new RuntimeException("no user found."));
+        int oldWhiteRating = userWhite.getRating();
+        int oldBlackRating = userBlack.getRating();
+        updateRating(userWhite, userBlack, true);
+        result[0] = userWhite.getRating();
+        result[1] = userBlack.getRating();
+        result[2] = Math.abs(userWhite.getRating() - oldWhiteRating);
+        result[3] = Math.abs(userBlack.getRating() - oldBlackRating);
+        return result;
     }
 
 }

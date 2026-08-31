@@ -21,6 +21,7 @@ public class User {
     private String password;
 
     private int rating = 100;
+    private int gamesPlayed = 0;
 
     public Long getId(){
         return id;
@@ -34,6 +35,7 @@ public class User {
     public int getRating(){
         return rating;
     }
+    public int getGamesPlayed(){return gamesPlayed;}
     public void setId(Long i){
         id = i;
     }
@@ -43,5 +45,11 @@ public class User {
     public void setPassword(String p){
         password = p;
     }
+    public void setRating(int r){
+        rating = r;
+    }
+    public void setGamesPlayed(int gp){gamesPlayed = gp;}
+    public void addGameToPlayed(){gamesPlayed++;}
+    
 
 }

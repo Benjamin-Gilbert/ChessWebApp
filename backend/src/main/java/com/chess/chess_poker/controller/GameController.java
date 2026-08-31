@@ -88,13 +88,14 @@ public class GameController {
     @PostMapping("/resign")
     public GameResponse postMethodName(@RequestBody MoveRequest request, Authentication authentication) {
         Game game = gameService.findGame(request.getGameID());
+        int[] ratings = new int[2];
         if(game.getBoard().getTurn().equals("white")){
-            gameService.whiteLoss(game);
-            return new GameResponse("White done lost");
+            ratings = gameService.whiteLoss(game);
+            return new GameResponse(ratings[0], ratings[1], ratings[2], ratings[3]);
         }
         else{
-            gameService.blackLoss(game);
-            return new GameResponse("Black done lost");
+            ratings = gameService.blackLoss(game);
+            return new GameResponse(ratings[0], ratings[1], ratings[2], ratings[3]);
         }
     }
     @PostMapping("/checkMate")

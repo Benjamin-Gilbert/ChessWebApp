@@ -15,6 +15,10 @@ public class GameResponse {
     private int[][] legalMoves;
     private String turn;
     private String message;
+    private int whiteNewRating;
+    private int blackNewRating;
+    private int whiteRatingChange;
+    private int blackRatingChange;
     public GameResponse(){
         gameID = "Game not found";
     }
@@ -55,6 +59,12 @@ public class GameResponse {
     public GameResponse(int[][] m){
         legalMoves = m;
     }
+    public GameResponse(int W, int B, int wc, int bc){
+        whiteNewRating = W;
+        blackNewRating = B;
+        whiteRatingChange = wc;
+        blackRatingChange= bc;
+    }
     public String getGameID(){
         return gameID;
     }
@@ -91,4 +101,8 @@ public class GameResponse {
     public String getMessage(){
         return message;
     }
+    public int getWhiteNewRating(){return whiteNewRating;}
+    public int getBlackNewRating(){return blackNewRating;}
+    public int getWhiteRatingChange(){return whiteRatingChange;}
+    public int getBlackRatingChange(){return blackRatingChange;}
 }

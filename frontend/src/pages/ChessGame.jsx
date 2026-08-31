@@ -20,6 +20,7 @@ export default function ChessGame() {
   const [showDrawPopup, setShowDrawPopup] = useState(false);
   const [showGameOverPopup, setShowGameOverPopup] = useState(false);
   const [gameOver, setGameOver] = useState(false);
+  const [ratingChanges, setRatingChanges] = useState(null);
 
   const playerColor = gameData?.playerWhite === username ? "white" : gameData?.playerBlack === username ? "black" : null;
 
@@ -49,7 +50,7 @@ gameID
 .then(res => res.json())
 
 .then(data => {
-
+setRatingChanges(data);
 setShowResignPopup(false);
 setShowGameOverPopup(true);
 
@@ -77,8 +78,8 @@ gameID
 
 .then(res => res.json())
 
-.then(data => {
-
+.then(data => { 
+setRatingChanges(data);
 setShowResignPopup(false);
 setShowGameOverPopup(true);
 
@@ -172,7 +173,7 @@ useEffect(() => {
             <div>+12 win/+6 draw/-2 loss</div>
           </div>
           <h3>Game</h3>
-          <button style={{width: "100px"}} onClick={() => setShowResignPopup(true)}>Resign</button>
+          <button style={{width: "100px"}} onClick={() => {if(playerColor === gameData.turn){setShowResignPopup(true)}}}>Resign</button>
           <button style={{width: "100px"}} onClick={() => setShowDrawPopup(true)}>Offer Draw</button>
         </div>
 
@@ -316,7 +317,18 @@ fontSize:"20px"
 {gameOverMessage}
 
 </div>
-
+{ratingChanges &&
+<div>
+  <div>
+    {gameData.playerWhite} new rating: {ratingChanges.whiteNewRating} ({ratingChanges.whiteRatingChange >= 0 ? "+" : "-"}
+    {ratingChanges.whiteRatingChange}) 
+  </div>
+  <div>
+    {gameData.playerBlack} new rating: {ratingChanges.blackNewRating} ({ratingChanges.blackRatingChange >= 0 ? "+" : "-"}
+    {ratingChanges.blackRatingChange})
+  </div>
+</div>
+}
 <button
 onClick={() =>
 setShowGameOverPopup(false)
