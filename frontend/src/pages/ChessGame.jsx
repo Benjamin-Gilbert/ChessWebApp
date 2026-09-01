@@ -27,6 +27,29 @@ export default function ChessGame() {
   function drawOffer(turn){
     //draw offer post.
   }
+  function checkmate(winner){
+    setGameOver(true);
+    setGameOverMessage(`${winner} wins by checkmate!`);
+    fetch("http://localhost:8080/game/checkMate",
+      {
+        method:"POST",
+        headers:{
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          gameID,
+          winner
+        })
+      }
+    )
+    .then(res => res.json()).then(data=> {
+      setRatingChanges(data);
+      setShowGameOverPopup(true);
+    })
+    .catch(console.error)
+  }
+
   function resign(turn){
     setGameOver(true);
     if(turn === "white"){
@@ -139,10 +162,8 @@ useEffect(() => {
   useEffect(() => {
     if(!moveData?.lastMove) return;
     if(moveData.lastMove.endsWith("#")){
-      const winner = moveData.turn === "white" ? "Black" : "White";
-      setGameOver(true);
-      setGameOverMessage(`${winner} wins by checkmate!`);
-      setShowGameOverPopup(true);
+      const winner = moveData.turn === "white" ? "black" : "white";
+      checkmate(winner);
     }
   }, [moveData])
   //Add another useEffect identical to the one above for stalemate and 50 move rule.

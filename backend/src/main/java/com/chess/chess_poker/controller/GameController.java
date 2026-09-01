@@ -88,7 +88,7 @@ public class GameController {
     @PostMapping("/resign")
     public GameResponse postMethodName(@RequestBody MoveRequest request, Authentication authentication) {
         Game game = gameService.findGame(request.getGameID());
-        int[] ratings = new int[2];
+        int[] ratings = new int[4];
         if(game.getBoard().getTurn().equals("white")){
             ratings = gameService.whiteLoss(game);
             return new GameResponse(ratings[0], ratings[1], ratings[2], ratings[3]);
@@ -101,8 +101,27 @@ public class GameController {
     @PostMapping("/checkMate")
     public GameResponse checkmate(@RequestBody MoveRequest request, Authentication authentication){
         Game game = gameService.findGame(request.getGameID());
-        return new GameResponse("Checkmate!");
+        User userWhite = userRepository.findByUsername(game.getPlayerWhite()).orElseThrow(() -> new RuntimeException("user not found."));
+        User userBlack = userRepository.findByUsername(game.getPlayerBlack()).orElseThrow(() -> new RuntimeException("user not found."));
+        int[] ratings = new int[4];
+        if(request.getWinner().equals("white")){
+            ratings = gameService.blackLoss(game);
+        }
+        else{
+            ratings = gameService.whiteLoss(game);
+        }
+        return new GameResponse(ratings[0], ratings[1], ratings[2], ratings[3]);
     }
+    @PostMapping("/draw")
+    public GameResponse draw(@RequestBody MoveRequest request, Authentication authentication) {
+        Game game = gameService.findGame(request.getGameID());
+        User userWhite = userRepository.findByUsername(game.getPlayerWhite()).orElseThrow(() -> new RuntimeException("user not found."));
+        User userBlack = userRepository.findByUsername(game.getPlayerBlack()).orElseThrow(() -> new RuntimeException("user not found."));
+        int[] ratings = new int[4];
+        ratings = gameService.drawnGame(game);
+        return new GameResponse(ratings[0], ratings[1], ratings[2], ratings[3]);
+    }
+    
     
 
 }

@@ -7,6 +7,7 @@ public class MoveRequest {
     private int toRow;
     private int toCol;
     private String promotion;
+    private String winner;
     public MoveRequest(String g, int fr, int fc, int tr, int tc){
         gameID = g;
         fromRow = fr;
@@ -26,6 +27,10 @@ public class MoveRequest {
         toRow = tr;
         toCol = tc;
         promotion = p;
+    }
+    public MoveRequest(String g, String w){
+        gameID = g;
+        winner = w;
     }
     public MoveRequest(String g){
         gameID = g;
@@ -56,4 +61,6 @@ public class MoveRequest {
     public String getPromotion(){
         return promotion;
     }
+    public String getWinner(){return winner;}
+    public void setWinner(String w){winner = w;}
 }
