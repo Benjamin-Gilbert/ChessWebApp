@@ -203,7 +203,7 @@ useEffect(() => {
           <div style={styles.topBar}>
             <div>    {gameData.playerBlack} ({gameData.playerBlackRating})    </div>
           </div>
-          <ChessBoard gameID={gameID} onGameUpdate={setMoveData} gameOver={gameOver} turn={turn} playerColor={playerColor} />
+          <ChessBoard gameID={gameID} onGameUpdate={setMoveData} gameOver={gameOver} turn={turn} playerColor={playerColor} boardFlipped={playerColor === "black"} />
           <div style = {styles.bottomBar}>
             <div>    {gameData.playerWhite} ({gameData.playerWhiteRating})    </div>
           </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import wp from "../assets/pieces/wp.svg";
 import wr from "../assets/pieces/wr.svg";
 import wn from "../assets/pieces/wn.svg";
@@ -33,7 +33,7 @@ const initialBoard = [
 const files = ["a", "b", "c", "d", "e", "f", "g", "h"];
 
 
-function ChessBoard({ gameID, onGameUpdate, gameOver, turn, playerColor}) {
+function ChessBoard({ gameID, onGameUpdate, gameOver, turn, playerColor, boardFlipped}) {
 
 const {token} = useAuth();
 
@@ -230,28 +230,24 @@ useEffect(() => {
 }
   return (
     <div style={{position: "relative"}}>
-    <div
-      style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(8, 100px)",
-        border: "2px solid black"
-      }}
-    >
-      {board.slice().reverse().flat().map((piece, i) => {
-        const row = 7 - Math.floor(i / 8);
-        const displayRow = 7 - row;
-        const col = i % 8;
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(8, 100px)", border: "2px solid black" }}>
+      {Array.from({ length: 64 }, (_, i) => {
+        // This is the ONLY part that changes based on orientation:
+        const displayRow = boardFlipped ? Math.floor(i / 8) : 7 - Math.floor(i / 8);
+        const displayCol = boardFlipped ? 7 - (i % 8) : i % 8;
+
+        // These stay exactly what they always were — the real board coordinates.
+        const row = displayRow;
+        const col = displayCol;
+        const piece = board[row][col];
+
         const isLight = (row + col) % 2 === 0;
         const isLastMove = lastMove &&
           ((lastMove.from.row === row && lastMove.from.col === col) ||
           (lastMove.to.row === row && lastMove.to.col === col));
-        const isSelected =
-          selectedSquare &&
-          selectedSquare.row === row &&
-          selectedSquare.col === col;
-        const isLegalMove =
-          legalMoves.some(([r, c]) => r === row && c === col);
-          
+        const isSelected = selectedSquare && selectedSquare.row === row && selectedSquare.col === col;
+        const isLegalMove = legalMoves.some(([r, c]) => r === row && c === col);
+
         return (
           <div
             key={i}
@@ -398,8 +394,7 @@ width: "100px"
 
 )}
 </div>
-    
   );
-}
+}        
 
 export default ChessBoard;

@@ -1,18 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import ProfileMenu from "../components/ProfileMenu";
-
-// TODO: replace with a real fetch once the backend leaderboard endpoint
-// is settled, e.g.:
-//   GET http://localhost:8080/leaderboard?mode=classic&timeControl=blitz
-// and re-run it in a useEffect whenever `mode` / `timeControl` change.
-const SAMPLE_LEADERS = [
-  { rank: 1, name: "GM Ben", rating: 2800, wins: 142, losses: 12, draws: 9 },
-  { rank: 2, name: "dumb clanker", rating: 2650, wins: 98, losses: 20, draws: 14 },
-  { rank: 3, name: "queenSac4life", rating: 2510, wins: 87, losses: 30, draws: 11 },
-  { rank: 4, name: "rookLift99", rating: 2440, wins: 75, losses: 28, draws: 8 },
-  { rank: 5, name: "e4orDie", rating: 2390, wins: 61, losses: 25, draws: 6 },
-];
 
 const MODES = [
   { value: "classic", label: "Classic" },
@@ -34,10 +22,17 @@ export default function Leaderboards() {
   const [mode, setMode] = useState("classic");
   const [timeControl, setTimeControl] = useState("blitz");
   const [ratingType, setRatingType] = useState("rating");
+  const [loading, setLoading] = useState(true);
+  const [leaders, setLeaders] = useState([]);
 
-  // Once wired to the backend, swap this for real fetched data
-  // (filtered/sorted server-side by mode/timeControl/ratingType).
-  const leaders = SAMPLE_LEADERS;
+  useEffect(() => {
+    fetch("http://localhost:8080/Leaderboard")
+    .then(res => res.json())
+    .then(data => setLeaders(data))
+    .catch(err => console.error("Leaderboard fetch error: ", err))
+    .finally(() => setLoading(false));
+  }, []);
+  console.log("leaders data:", JSON.stringify(leaders));
 
   return (
     <div style={styles.page}>
@@ -100,6 +95,7 @@ export default function Leaderboards() {
               </select>
             </div>
           </div>
+          
 
           <table style={styles.table}>
             <thead>
@@ -108,11 +104,14 @@ export default function Leaderboards() {
                 <th style={{ ...styles.th, textAlign: "left" }}>Player</th>
                 <th style={styles.th}>Rating</th>
                 <th style={styles.th}>W</th>
-                <th style={styles.th}>L</th>
                 <th style={styles.th}>D</th>
+                <th style={styles.th}>L</th>
+                <th style={styles.th}>GP</th>
               </tr>
+              
             </thead>
             <tbody>
+              
               {leaders.map((player) => (
                 <tr
                   key={player.rank}
@@ -130,12 +129,13 @@ export default function Leaderboards() {
                     )}
                   </td>
                   <td style={{ ...styles.td, textAlign: "left", fontWeight: "bold" }}>
-                    {player.name}
+                    {player.username}
                   </td>
                   <td style={styles.td}>{player.rating}</td>
-                  <td style={{ ...styles.td, color: "#7fd17f" }}>{player.wins}</td>
-                  <td style={{ ...styles.td, color: "#e37b7b" }}>{player.losses}</td>
-                  <td style={{ ...styles.td, color: "#999" }}>{player.draws}</td>
+                  <td style={{ ...styles.td, color: "#7fd17f" }}>{player.gamesWon}</td>
+                  <td style={{ ...styles.td, color: "#999" }}>{player.gamesDrawn}</td>
+                  <td style={{ ...styles.td, color: "#e37b7b" }}>{player.gamesLost}</td>
+                  <td style={styles.td}>{player.gamesPlayed}</td>
                 </tr>
               ))}
             </tbody>

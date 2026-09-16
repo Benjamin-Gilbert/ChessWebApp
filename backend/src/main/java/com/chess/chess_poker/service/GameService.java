@@ -210,6 +210,8 @@ public class GameService {
         User userBlack = userRepository.findByUsername(game.getPlayerBlack()).orElseThrow(() -> new RuntimeException("no user found."));
         int oldWhiteRating = userWhite.getRating();
         int oldBlackRating = userBlack.getRating();
+        userWhite.addGameToLost();
+        userBlack.addGameToWon();
         updateRating(userBlack, userWhite, false);
         result[0] = userWhite.getRating();
         result[1] = userBlack.getRating();
@@ -223,6 +225,8 @@ public class GameService {
         User userBlack = userRepository.findByUsername(game.getPlayerBlack()).orElseThrow(() -> new RuntimeException("no user found."));
         int oldWhiteRating = userWhite.getRating();
         int oldBlackRating = userBlack.getRating();
+        userWhite.addGameToWon();
+        userBlack.addGameToLost();
         updateRating(userWhite, userBlack, false);
         result[0] = userWhite.getRating();
         result[1] = userBlack.getRating();
@@ -236,6 +240,8 @@ public class GameService {
         User userBlack = userRepository.findByUsername(game.getPlayerBlack()).orElseThrow(() -> new RuntimeException("no user found."));
         int oldWhiteRating = userWhite.getRating();
         int oldBlackRating = userBlack.getRating();
+        userWhite.addGameToDrawn();
+        userBlack.addGameToDrawn();
         updateRating(userWhite, userBlack, true);
         result[0] = userWhite.getRating();
         result[1] = userBlack.getRating();

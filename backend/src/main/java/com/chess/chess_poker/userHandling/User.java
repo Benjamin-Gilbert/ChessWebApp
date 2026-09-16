@@ -21,7 +21,11 @@ public class User {
     private String password;
 
     private int rating = 100;
+    private int gamesWon = 0;
+    private int gamesDrawn = 0;
+    private int gamesLost = 0;
     private int gamesPlayed = 0;
+    
 
     public Long getId(){
         return id;
@@ -35,6 +39,9 @@ public class User {
     public int getRating(){
         return rating;
     }
+    public int getGamesWon(){return gamesWon;}
+    public int getGamesDrawn(){return gamesDrawn;}
+    public int getGamesLost(){return gamesLost;}
     public int getGamesPlayed(){return gamesPlayed;}
     public void setId(Long i){
         id = i;
@@ -48,8 +55,15 @@ public class User {
     public void setRating(int r){
         rating = r;
     }
+    public void setGamesWon(int gw){gamesWon = gw;}
+    public void setGamesDrawn(int gd){gamesDrawn = gd;}
+    public void setGamesLost(int gl){gamesLost = gl;}
     public void setGamesPlayed(int gp){gamesPlayed = gp;}
+    public void addGameToWon(){gamesWon++;}
+    public void addGameToDrawn(){gamesDrawn++;}
+    public void addGameToLost(){gamesLost++;}
     public void addGameToPlayed(){gamesPlayed++;}
+
     
 
 }
