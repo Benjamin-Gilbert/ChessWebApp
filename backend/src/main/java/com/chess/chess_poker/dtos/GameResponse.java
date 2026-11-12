@@ -19,6 +19,9 @@ public class GameResponse {
     private int blackNewRating;
     private int whiteRatingChange;
     private int blackRatingChange;
+    private long whiteClock;
+    private long blackClock;
+    private long lastMoveTime;
     public GameResponse(){
         gameID = "Game not found";
     }
@@ -36,14 +39,17 @@ public class GameResponse {
         mirrorBoard = mb;
         lastMove = lm;
     }
-    public GameResponse(String s, Piece[][] mb, String lm, List<NotatedMove> ml, String t){
+    public GameResponse(String s, Piece[][] mb, String lm, List<NotatedMove> ml, String t, long wc, long bc, long lmt){
         moveMadeOrNah = s;
         mirrorBoard = mb;
         lastMove = lm;
         moveList = ml;
         turn = t;
+        whiteClock = wc;
+        blackClock = bc;
+        lastMoveTime = lmt;
     }
-    public GameResponse(String g, String w, String b, int wr, int br, Piece[][] mb, String t, List<NotatedMove> ml){
+    public GameResponse(String g, String w, String b, int wr, int br, Piece[][] mb, String t, List<NotatedMove> ml, long wc, long bc){
         gameID = g;
         playerWhite = w;
         playerBlack = b;
@@ -52,6 +58,8 @@ public class GameResponse {
         mirrorBoard = mb;
         turn = t;
         moveList = ml;
+        whiteClock = wc;
+        blackClock = bc;
     }
     public GameResponse(String m){
         message = m;
@@ -105,4 +113,7 @@ public class GameResponse {
     public int getBlackNewRating(){return blackNewRating;}
     public int getWhiteRatingChange(){return whiteRatingChange;}
     public int getBlackRatingChange(){return blackRatingChange;}
+    public long getWhiteClock(){return whiteClock;}
+    public long getBlackClock(){return blackClock;}
+    public long getLastMoveTime(){return lastMoveTime;}
 }

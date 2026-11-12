@@ -67,8 +67,8 @@ public class Move {
         String capture = "";
         String check = "";
         String mate = "";
-        //String fromRank;
-        //String fromFile;
+        String fromRank = String.valueOf(fromRow + 1);
+        String fromFile;
         String toFile;
         String toRank = String.valueOf(toRow + 1);
         String pieceAbbr = "";
@@ -114,29 +114,7 @@ public class Move {
             default:
                 toFile = "";
         }
-        switch(piece.getName()){
-            case "knight":
-                pieceAbbr = "N";
-                break;
-            case "bishop":
-                pieceAbbr = "B";
-                break;
-            case "rook":
-                pieceAbbr = "R";
-                break;
-            case "queen":
-                pieceAbbr = "Q";
-                break;
-            case "king":
-                pieceAbbr = "K";
-                break;
-            default:
-                pieceAbbr = "";
-        }
-        if(isThereACapture || enPassant){
-            if(piece.getName().equals("pawn")){
-                String fromFile = "";
-                switch(fromCol){
+        switch(fromCol){
             case 0:
                 fromFile = "a";
                 break;
@@ -163,7 +141,28 @@ public class Move {
                 break;
             default:
                 fromFile = "";
-             }
+        }
+        switch(piece.getName()){
+            case "knight":
+                pieceAbbr = "N";
+                break;
+            case "bishop":
+                pieceAbbr = "B";
+                break;
+            case "rook":
+                pieceAbbr = "R";
+                break;
+            case "queen":
+                pieceAbbr = "Q";
+                break;
+            case "king":
+                pieceAbbr = "K";
+                break;
+            default:
+                pieceAbbr = "";
+        }
+        if(isThereACapture || enPassant){
+            if(piece.getName().equals("pawn")){
              capture = fromFile + "x";
             }
             else{
@@ -195,8 +194,11 @@ public class Move {
             }
             return capture + toFile + toRank + promotion + check + mate;
         }
+        if(piece.getName().equals("pawn")){
+            return capture + toFile + toRank + promotion + check + mate;
+        }
 
-        return pieceAbbr + capture + toFile + toRank + promotion + check + mate;
+        return pieceAbbr + fromFile + fromRank + capture + toFile + toRank + promotion + check + mate;
     }
     
 }

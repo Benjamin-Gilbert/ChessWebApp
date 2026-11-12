@@ -21,8 +21,18 @@ export default function ChessGame() {
   const [showGameOverPopup, setShowGameOverPopup] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const [ratingChanges, setRatingChanges] = useState(null);
+  const [trigger, setTrigger] = useState(false);
+
 
   const playerColor = gameData?.playerWhite === username ? "white" : gameData?.playerBlack === username ? "black" : null;
+  const boardFlipped = playerColor === "black";
+  const topPlayer = boardFlipped
+  ? { name: gameData?.playerWhite, rating: gameData?.playerWhiteRating }
+  : { name: gameData?.playerBlack, rating: gameData?.playerBlackRating };
+
+const bottomPlayer = boardFlipped
+  ? { name: gameData?.playerBlack, rating: gameData?.playerBlackRating }
+  : { name: gameData?.playerWhite, rating: gameData?.playerWhiteRating };
 
   function drawOffer(turn){
     //draw offer post.
@@ -45,6 +55,12 @@ export default function ChessGame() {
     )
     .then(res => res.json()).then(data=> {
       setRatingChanges(data);
+      if(winner === "white"){
+        setGameOverMessage("White wins by checkmate. ");
+      }
+      else{
+        setGameOverMessage("Black wins by checkmate. ");
+      }
       setShowGameOverPopup(true);
     })
     .catch(console.error)
@@ -134,6 +150,38 @@ useEffect(() => {
     }
   }, [moveData]);
   useEffect(() => {
+    if(gameData){
+    let whiteClock = gameData.whiteClock;
+    let blackClock = gameData.blackClock;
+    if((whiteClock <= 0 || blackClock <= 0) && !trigger){
+      fetch("http://localhost:8080/game/timeout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+        gameID
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        setRatingChanges(data);
+        if(whiteClock <= 0){
+          setGameOverMessage("White flags, Black wins. ");
+        }
+        else{
+          setGameOverMessage("Black flags, White wins.");
+        }
+        setShowGameOverPopup(true);
+        setTrigger(true);
+      })
+      .catch(err => {
+        console.error("FETCH ERROR:", err);
+      });
+    }
+  }})
+  useEffect(() => {
     if (!gameID) {
       //console.log("NO GAME ID YET");
       return;
@@ -201,11 +249,11 @@ useEffect(() => {
         {/* CENTER: BOARD */}
         <div style={styles.boardArea}>
           <div style={styles.topBar}>
-            <div>    {gameData.playerBlack} ({gameData.playerBlackRating})    </div>
+            <div>    {topPlayer.name} ({topPlayer.rating})    </div>
           </div>
           <ChessBoard gameID={gameID} onGameUpdate={setMoveData} gameOver={gameOver} turn={turn} playerColor={playerColor} boardFlipped={playerColor === "black"} />
           <div style = {styles.bottomBar}>
-            <div>    {gameData.playerWhite} ({gameData.playerWhiteRating})    </div>
+            <div>    {bottomPlayer.name} ({bottomPlayer.rating})    </div>
           </div>
         </div>
 

@@ -53,7 +53,7 @@ public class GameController {
     @PostMapping("/move")
     public GameResponse makeMove(@RequestBody MoveRequest request, Authentication authentication){
         Game game = gameService.findGame(request.getGameID());
-        return new GameResponse(gameService.makeMove(request), game.getBoard().getBoard(), game.getLastMoveNotated(), game.getMoveList(), game.getBoard().getTurn());
+        return new GameResponse(gameService.makeMove(request), game.getBoard().getBoard(), game.getLastMoveNotated(), game.getMoveList(), game.getBoard().getTurn(), game.getWhiteClock(), game.getBlackClock(), game.getLastMoveTime());
     }
     @GetMapping("/open")
     public ResponseEntity<?> getOpenGames() {
@@ -68,6 +68,9 @@ public class GameController {
             return new GameResponse();
         }
         else{
+            game.setWhiteClock(gameService.getLiveWhiteClock(game));
+            game.setBlackClock(gameService.getLiveBlackClock(game));
+            game.setLastMoveTime(System.currentTimeMillis());
             return game.returnAsResponse();
         }
 
@@ -119,6 +122,18 @@ public class GameController {
         //User userBlack = userRepository.findByUsername(game.getPlayerBlack()).orElseThrow(() -> new RuntimeException("user not found."));
         int[] ratings = new int[4];
         ratings = gameService.drawnGame(game);
+        return new GameResponse(ratings[0], ratings[1], ratings[2], ratings[3]);
+    }
+    @PostMapping("/timeout")
+    public GameResponse timeout(@RequestBody MoveRequest request, Authentication authentication){
+        Game game = gameService.findGame(request.getGameID());
+        int[] ratings = new int[4];
+        if(game.getBlackClock() <= 0){
+            ratings = gameService.blackLoss(game);
+        }
+        else if(game.getWhiteClock() <= 0){
+            ratings = gameService.whiteLoss(game);
+        }
         return new GameResponse(ratings[0], ratings[1], ratings[2], ratings[3]);
     }
     

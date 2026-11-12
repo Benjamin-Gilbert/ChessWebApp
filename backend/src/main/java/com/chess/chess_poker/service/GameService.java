@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.chess.chess_poker.boardinfo.*;
 import com.chess.chess_poker.engine.*;
+import com.chess.chess_poker.gameStorage.GameRecord;
+import com.chess.chess_poker.repositories.GameRepository;
 import com.chess.chess_poker.repositories.UserRepository;
 import com.chess.chess_poker.userHandling.User;
 import com.chess.chess_poker.dtos.CreateGameRequest;
@@ -19,6 +21,7 @@ import java.util.List;
 public class GameService {
     private Map<String, Game> games;
     @Autowired private UserRepository userRepository;
+    @Autowired private GameRepository gameRepository;
     public GameService(ChessPokerApplication chessPokerApplication){
         games = new HashMap<>();
     }
@@ -51,9 +54,24 @@ public class GameService {
         String notatedMove;
         String side = "";
         String promotion = "";
+
         if(game == null){
             return "Error: game not found";
         }
+
+        long currTime = System.currentTimeMillis();
+        long elapsedTime = currTime - game.getLastMoveTime();
+        String turn = game.getBoard().getTurn();
+        game.setWhiteClock(getLiveWhiteClock(game));
+        game.setBlackClock(getLiveBlackClock(game));
+        if(game.getWhiteClock() <= 0){
+            return "white TO";
+        }
+        else if(game.getBlackClock() <= 0){
+            return "black TO";
+        }
+        game.setLastMoveTime(currTime);
+
         Piece piece = game.getBoard().findPieceByCoordinates(request.getFromRow(), request.getFromCol());
         if(piece == null){
             return "No piece here";
@@ -199,55 +217,106 @@ public class GameService {
         }
         winner.addGameToPlayed();
         loser.addGameToPlayed();
+
+        winner.addRatingToHistory(winner.getRating());
+        loser.addRatingToHistory(loser.getRating());
         
         userRepository.save(winner);
         userRepository.save(loser);
     }
 
+    public void saveGame(Game game, String result, int whiteRating, int blackRating){
+        GameRecord gameRecord = new GameRecord();
+        gameRecord.setGameMode("chess");
+        gameRecord.setPlayerWhite(game.getPlayerWhite());
+        gameRecord.setPlayerBlack(game.getPlayerBlack());
+        gameRecord.setResult(result);
+        gameRecord.setWhiteUpdatedRating(whiteRating);
+        gameRecord.setBlackUpdatedRating(blackRating);
+        gameRecord.setPGN(game.toPGN(result));
+        gameRepository.save(gameRecord);
+    }
+
     public int[] whiteLoss(Game game){
-        int[] result = new int[4];
-        User userWhite = userRepository.findByUsername(game.getPlayerWhite()).orElseThrow(() -> new RuntimeException("no user found."));
-        User userBlack = userRepository.findByUsername(game.getPlayerBlack()).orElseThrow(() -> new RuntimeException("no user found."));
-        int oldWhiteRating = userWhite.getRating();
-        int oldBlackRating = userBlack.getRating();
-        userWhite.addGameToLost();
-        userBlack.addGameToWon();
-        updateRating(userBlack, userWhite, false);
-        result[0] = userWhite.getRating();
-        result[1] = userBlack.getRating();
-        result[2] = Math.abs(userWhite.getRating() - oldWhiteRating);
-        result[3] = Math.abs(userBlack.getRating() - oldBlackRating);
-        return result;
+        synchronized(game){
+            if(game.getProcessed() != null){return game.getProcessed();}
+            else{
+                int[] result = new int[4];
+                User userWhite = userRepository.findByUsername(game.getPlayerWhite()).orElseThrow(() -> new RuntimeException("no user found."));
+                User userBlack = userRepository.findByUsername(game.getPlayerBlack()).orElseThrow(() -> new RuntimeException("no user found."));
+                int oldWhiteRating = userWhite.getRating();
+                int oldBlackRating = userBlack.getRating();
+                userWhite.addGameToLost();
+                userBlack.addGameToWon();
+                updateRating(userBlack, userWhite, false);
+                saveGame(game, "black", userWhite.getRating(), userBlack.getRating());
+                result[0] = userWhite.getRating();
+                result[1] = userBlack.getRating();
+                result[2] = Math.abs(userWhite.getRating() - oldWhiteRating);
+                result[3] = Math.abs(userBlack.getRating() - oldBlackRating);
+                game.setProcessed(result);
+                return result;
+            }
+        }
     }
     public int[] blackLoss(Game game){
-        int[] result = new int[4];
-        User userWhite = userRepository.findByUsername(game.getPlayerWhite()).orElseThrow(() -> new RuntimeException("no user found."));
-        User userBlack = userRepository.findByUsername(game.getPlayerBlack()).orElseThrow(() -> new RuntimeException("no user found."));
-        int oldWhiteRating = userWhite.getRating();
-        int oldBlackRating = userBlack.getRating();
-        userWhite.addGameToWon();
-        userBlack.addGameToLost();
-        updateRating(userWhite, userBlack, false);
-        result[0] = userWhite.getRating();
-        result[1] = userBlack.getRating();
-        result[2] = Math.abs(userWhite.getRating() - oldWhiteRating);
-        result[3] = Math.abs(userBlack.getRating() - oldBlackRating);
-        return result;
+        synchronized(game){
+            if(game.getProcessed() != null){return game.getProcessed();}
+            else{
+                int[] result = new int[4];
+                User userWhite = userRepository.findByUsername(game.getPlayerWhite()).orElseThrow(() -> new RuntimeException("no user found."));
+                User userBlack = userRepository.findByUsername(game.getPlayerBlack()).orElseThrow(() -> new RuntimeException("no user found."));
+                int oldWhiteRating = userWhite.getRating();
+                int oldBlackRating = userBlack.getRating();
+                userWhite.addGameToWon();
+                userBlack.addGameToLost();
+                updateRating(userWhite, userBlack, false);
+                saveGame(game, "white", userWhite.getRating(), userBlack.getRating());
+                result[0] = userWhite.getRating();
+                result[1] = userBlack.getRating();
+                result[2] = Math.abs(userWhite.getRating() - oldWhiteRating);
+                result[3] = Math.abs(userBlack.getRating() - oldBlackRating);
+                game.setProcessed(result);
+                return result;
+            }
+        }
     }
     public int[] drawnGame(Game game){
-        int[] result = new int[4];
-        User userWhite = userRepository.findByUsername(game.getPlayerWhite()).orElseThrow(() -> new RuntimeException("no user found."));
-        User userBlack = userRepository.findByUsername(game.getPlayerBlack()).orElseThrow(() -> new RuntimeException("no user found."));
-        int oldWhiteRating = userWhite.getRating();
-        int oldBlackRating = userBlack.getRating();
-        userWhite.addGameToDrawn();
-        userBlack.addGameToDrawn();
-        updateRating(userWhite, userBlack, true);
-        result[0] = userWhite.getRating();
-        result[1] = userBlack.getRating();
-        result[2] = Math.abs(userWhite.getRating() - oldWhiteRating);
-        result[3] = Math.abs(userBlack.getRating() - oldBlackRating);
-        return result;
+        synchronized(game){
+            if(game.getProcessed() != null){return game.getProcessed();}
+            else{
+                int[] result = new int[4];
+                User userWhite = userRepository.findByUsername(game.getPlayerWhite()).orElseThrow(() -> new RuntimeException("no user found."));
+                User userBlack = userRepository.findByUsername(game.getPlayerBlack()).orElseThrow(() -> new RuntimeException("no user found."));
+                int oldWhiteRating = userWhite.getRating();
+                int oldBlackRating = userBlack.getRating();
+                userWhite.addGameToDrawn();
+                userBlack.addGameToDrawn();
+                updateRating(userWhite, userBlack, true);
+                saveGame(game, "draw", userWhite.getRating(), userBlack.getRating());
+                result[0] = userWhite.getRating();
+                result[1] = userBlack.getRating();
+                result[2] = Math.abs(userWhite.getRating() - oldWhiteRating);
+                result[3] = Math.abs(userBlack.getRating() - oldBlackRating);
+                game.setProcessed(result);
+                return result;
+            }
+        }
     }
+    public long getLiveWhiteClock(Game game) {
+    if (!game.getBoard().getTurn().equals("white")) {
+        return game.getWhiteClock(); // not their turn — clock isn't running, return as-is
+    }
+    long elapsed = System.currentTimeMillis() - game.getLastMoveTime();
+    return Math.max(0, game.getWhiteClock() - elapsed);
+}
+
+public long getLiveBlackClock(Game game) {
+    if (!game.getBoard().getTurn().equals("black")) {
+        return game.getBlackClock();
+    }
+    long elapsed = System.currentTimeMillis() - game.getLastMoveTime();
+    return Math.max(0, game.getBlackClock() - elapsed);
+}
 
 }

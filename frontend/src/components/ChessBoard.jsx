@@ -42,6 +42,8 @@ const {token} = useAuth();
   const[lastMove, setLastMove] = useState(null);
   const[legalMoves, setLegalMoves] = useState([]);
   const[promotionMove, setPromotionMove] = useState(null);
+  const[whiteClock, setWhiteClock] = useState(300000);
+  const[blackClock, setBlackClock] = useState(300000);
   function choosePromotion(choice){
 
     sendMove(
@@ -54,6 +56,17 @@ const {token} = useAuth();
     setPromotionMove(null);
 
 }
+function formatTime(ms) {
+  if (ms == null) return "--:--";
+  const totalSeconds = Math.max(0, Math.floor(ms / 1000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+}
+const topColor = boardFlipped ? "white" : "black";
+const bottomColor = boardFlipped ? "black" : "white";
+const topTime = topColor === "white" ? whiteClock : blackClock;
+const bottomTime = bottomColor === "white" ? whiteClock : blackClock;
   function shouldPromote(from, toRow) {
 
     if(!from.piece) return false;
@@ -66,6 +79,13 @@ const {token} = useAuth();
         (from.piece[0] === "b" && toRow === 0)
     );
 }
+useEffect(() => {
+  const interval = setInterval(() => {
+    if(turn === "white"){setWhiteClock(t => Math.max(0, t - 1000));}
+    else if(turn === "black"){setBlackClock(t => Math.max(0, t - 1000));}
+  }, 1000);
+  return () => clearInterval(interval);
+}, [turn]);
 useEffect(() => {
   if (!gameID || !token) return;
 
@@ -85,7 +105,9 @@ useEffect(() => {
             newBoard.push(newRow);
           }
           setBoard(newBoard);
-          onGameUpdate(data); // keeps ChessGame.jsx's move list / turn / checkmate check in sync too
+          setWhiteClock(data.whiteClock);
+          setBlackClock(data.blackClock);
+          onGameUpdate(data); 
         }
       })
       .catch(err => console.error("Board poll error:", err));
@@ -114,7 +136,7 @@ useEffect(() => {
     .then(res => res.json())
     .then(data => {
       console.log("UPDATED GAME:", data);
-      if(data.moveMade === "Move made successfully and added to move history"){
+      if(data.moveMade === "Move made successfully and added to move history" && (data.whiteClock !== 0 || data.blackClock !== 0)){
         const newBoard = [];
 
   for (let row = 0; row < 8; row++) {
@@ -132,6 +154,8 @@ useEffect(() => {
   }
 
   setBoard(newBoard);
+  setWhiteClock(data.whiteClock);
+  setBlackClock(data.blackClock);
   setLegalMoves([]);
   setLastMove({
     from,
@@ -139,6 +163,7 @@ useEffect(() => {
       row: toRow, 
       col: toCol
     }
+    //TODO: handle time out logic.
   });
   console.log("Last Move ", lastMove);
 
@@ -230,6 +255,9 @@ useEffect(() => {
 }
   return (
     <div style={{position: "relative"}}>
+      <div style={{...styles.clock,
+      opacity: turn === topColor ? 1 : 0.5,
+      fontWeight: turn === topColor ? "bold" : "normal",}}>{formatTime(topTime)}</div>
     <div style={{ display: "grid", gridTemplateColumns: "repeat(8, 100px)", border: "2px solid black" }}>
       {Array.from({ length: 64 }, (_, i) => {
         // This is the ONLY part that changes based on orientation:
@@ -350,6 +378,10 @@ isLight
         );
       })}
     </div>
+    <div style={{...styles.clock, 
+      opacity: turn === bottomColor ? 1 : 0.5,
+      fontWeight: turn === bottomColor ? "bold" : "normal",
+    }}>{formatTime(bottomTime)}</div>
     {promotionMove && (
 
 <div
@@ -395,6 +427,19 @@ width: "100px"
 )}
 </div>
   );
-}        
+  
+}  
+const styles = {
+  clock: {
+    width: "800px",
+    padding: "8px 16px",
+    fontSize: "28px",
+    fontFamily: "monospace",
+    color: "white",
+    backgroundColor: "#1f1f1f",
+    textAlign: "right",
+    boxSizing: "border-box",
+  },
+};      
 
 export default ChessBoard;

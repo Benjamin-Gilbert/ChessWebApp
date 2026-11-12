@@ -5,6 +5,14 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+
+import java.util.ArrayList;
+
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+import org.springframework.expression.spel.ast.TypeCode;
+
 import jakarta.persistence.Column;
 
 @Entity
@@ -25,6 +33,10 @@ public class User {
     private int gamesDrawn = 0;
     private int gamesLost = 0;
     private int gamesPlayed = 0;
+
+    @JdbcTypeCode(SqlTypes.ARRAY)
+    @Column(name="rating_history")
+    private ArrayList<Integer> ratingHistory = new ArrayList<>();
     
 
     public Long getId(){
@@ -43,6 +55,7 @@ public class User {
     public int getGamesDrawn(){return gamesDrawn;}
     public int getGamesLost(){return gamesLost;}
     public int getGamesPlayed(){return gamesPlayed;}
+    public ArrayList<Integer> getRatingHistory(){return ratingHistory;}
     public void setId(Long i){
         id = i;
     }
@@ -59,10 +72,12 @@ public class User {
     public void setGamesDrawn(int gd){gamesDrawn = gd;}
     public void setGamesLost(int gl){gamesLost = gl;}
     public void setGamesPlayed(int gp){gamesPlayed = gp;}
+    public void setratingHistory(ArrayList<Integer> r){ratingHistory = r;}
     public void addGameToWon(){gamesWon++;}
     public void addGameToDrawn(){gamesDrawn++;}
     public void addGameToLost(){gamesLost++;}
     public void addGameToPlayed(){gamesPlayed++;}
+    public void addRatingToHistory(int r){ratingHistory.add(r);}
 
     
 
